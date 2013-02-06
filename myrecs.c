@@ -19,8 +19,8 @@ Project 1
 #include "LinkedList.c"
 #include "OrderedLinkedList.c"
 
-typedef struct { //format: 111245 PH0201 RESPHYS F
-  char studentId[7], courseId[7], courseName[8], grade[3];
+typedef struct { //format: <111245> PH0201 RESPHYS F
+  char courseId[7], courseName[8], grade[3];
 } Record;
 
 struct node {
@@ -32,16 +32,21 @@ struct node {
 
 void printRecord( Record* record ) { //Print the record
   println("------record------");
-  println("studentId:\t%s", record->studentId);
-  println("courseId:\t%s", record->courseId);
-  println("courseName:\t%s", record->courseName);
-  println("grade:\t%s", record->grade);
+  println("courseId=%s, courseName=%s, grade=%s", record->courseId, record->courseName, record->grade);
 } // printRecord
 
 void printNode( struct node* node ) { //Print the node
   println("------node------");
   println("num children:\t\t%d", node->numChildren);
   println("leaf?:\t\t%d", node->isLeafNode);
+  if ( node->isLeafNode > 2 ) { exit(0); }
+  if ( node->numChildren > 0 ) {
+    int i;
+    for ( i=0; i<node->numChildren; i++ ) {
+      printf( "keys[%d]=%d\t", i, node->keys[i]  );
+    }
+    println("");
+  }
 } // printNode
 
 struct node* init( void ) { // return a pointer to the root node
@@ -54,7 +59,6 @@ struct node* init( void ) { // return a pointer to the root node
 } // init
 
 struct node* search( struct node* node, int k ) {
-
   println("I'm in the search function.");
   int i = 1;
 
@@ -79,7 +83,7 @@ struct node* search( struct node* node, int k ) {
 } // search
 
 struct node* split( struct node* node, int i  ) {
-
+  println( "splitting node at index %d", i );
   struct node* z = (struct node*) malloc( sizeof(struct node) );
 
   if ( node->numChildren > 0 ) {
@@ -87,7 +91,7 @@ struct node* split( struct node* node, int i  ) {
     printNode(y);
     int t = y->numChildren / 2;
     z->numChildren = y->numChildren - t;
-    println(" z_numChildren is %d", z->numChildren);
+    println("**y->isLeafNode %d", y->isLeafNode);
     z->isLeafNode = y->isLeafNode;
 
     int j;
@@ -95,7 +99,7 @@ struct node* split( struct node* node, int i  ) {
       z->keys[j] = y->keys[j+t];
     }
 
-    if ( !y->isLeafNode ) { //meh?
+    if ( y->isLeafNode == NO ) {
       for ( j=1; j>= t; j-- ) {
         z->children[j] = y->children[j+t];
       }  
@@ -117,18 +121,22 @@ struct node* split( struct node* node, int i  ) {
     printNode( node );
 
   } else {
-    println(" node has no children ");
+    println("node has no children ");
   }
 
+  println("here");
+
+  printNode( z );
   return z;
 
 } // split
 
 void insertNonfull( struct node* node, int k ) {
+  println("I'm in insertNonfull with key %d", k );
 
-  println("insertNonfull");
   int i = node->numChildren;
-  if ( node->isLeafNode ) {
+  println(" node->isLeafNode ? %d", node->isLeafNode );
+  if ( node->isLeafNode == YES ) {
     while ( i >= 1 && k < node->keys[i] ) {
       node->keys[i+1] = node->keys[i];
       i--;
@@ -139,7 +147,9 @@ void insertNonfull( struct node* node, int k ) {
     while ( i >= 1 && node->keys[i] ) {
       i--;
     }
+    println("== node->children[i]->numChildren is %d", node->children[i]->numChildren );
     if ( node->children[i]->numChildren == 4 ) {
+      println("== splitting node with 4 children ");
       split( node, i );
       if ( k > node->keys[i] ) {
         i++;
@@ -151,7 +161,7 @@ void insertNonfull( struct node* node, int k ) {
 } // insertNonfull
 
 void insertMax( struct node* node, int k ) {
-  println("I'm in insertMax.");
+  println("I'm in insertMax with key %d", k );
 
   int i = node->numChildren;
   if ( node->isLeafNode ) {
@@ -159,7 +169,9 @@ void insertMax( struct node* node, int k ) {
     node->numChildren = node->numChildren + 1;
   } else {
     node->keys[i+1] = k;
+    println("++ node->children[i]->numChildren is %d", node->children[i]->numChildren );
     if ( node->children[i]->numChildren == 4 ) {
+      println("++ splitting node with 4 children ");
       split( node, i );
     }
     insertMax( node->children[i], k );
@@ -168,15 +180,16 @@ void insertMax( struct node* node, int k ) {
 } // insertMax
 
 void insert( struct node* root, int k ) {
-  println("I'm in the insert function.");
+  println("I'm in the insert function with key %d", k);
 
   int i = root->numChildren;
+  printNode( root );
   if ( i == 4 ) {
     struct node* node = (struct node*) malloc( sizeof(struct node) );
     node->isLeafNode = NO;
     node->numChildren = 1;
     node->children[1] = root;
-    node->keys[1] = root->keys[4];
+    node->keys[1] = root->keys[3];
     root=node;
     split( node, 1 );
     if ( k > node->keys[2] ) {
@@ -186,10 +199,8 @@ void insert( struct node* root, int k ) {
     }
   } else {
     if ( k > root->keys[i] ) {
-      println("k (%d) is > root->keys[i] (%d)", k, root->keys[i]);
       insertMax( root, k ); //meh?
     } else {
-      println("k (%d) is < root->keys[i] (%d)", k, root->keys[i]);
       insertNonfull( root, k );
     }
   }
@@ -205,8 +216,8 @@ int main( int argc, char *argv[] ) {
    
   struct node* root = init();
   struct item *List = NULL;
-  char  myword[MAXSIZE], buffer[MAXSIZE];
   FILE  *fp=NULL;
+  char separator;
 
   if ( argc != 2 ) {
     println("expected syntax: myexe inputfile");
@@ -219,10 +230,11 @@ int main( int argc, char *argv[] ) {
       List = CreateItem( List );
       while ( !feof(fp) ) {
         Record* newRecord = (Record *) malloc(sizeof(Record));
-        println("%s", myword);
-        fscanf( fp, "%s %s %s %s", newRecord->studentId, newRecord->courseId, newRecord->courseName, newRecord->grade );
-        // printRecord( newRecord );
-        List = OrderedInsertItem( List, myword );
+        int studentId;
+        fscanf( fp, "%d %s %s %s", &studentId, newRecord->courseId, newRecord->courseName, newRecord->grade );
+        fscanf( fp, "%c", &separator );
+        insert( root, studentId  ); // TODO: do we keep studentId as attr in Record?
+        List = OrderedInsertItem( List, newRecord->courseId );
       }
       fclose(fp);   
       OrderedPrintItem(List);
