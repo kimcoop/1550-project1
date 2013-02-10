@@ -12,20 +12,15 @@ Project 1
 // #include "CourseData.c"
 
 void printNode( struct node* node ) { //Print the node
-  println("------node------");
-  println("numChildren: %d", node->numChildren);
-  println("isLeafNode?: %d", node->isLeafNode);
-  if ( node->isLeafNode > 2 ) {  // TODO this is icky WHYYY
-    println(" WRONG ");
-   }
+  println("NODE: numChildren: %d, isLeafNode?: %d", node->numChildren, node->isLeafNode);
   if ( node->numChildren > 0 ) {
     int i;
-    for ( i=0; i<node->numChildren; i++ ) {
+    for ( i = 0;i < node->numChildren; i++ ) {
       printf( "keys[%d]=%d\t", i, node->keys[i]  );
     }
     println("");
   }
-  if ( node->isLeafNode ) { // then has courseData linkedList
+  if ( node->isLeafNode == YES ) { // then has courseData linkedList
     PrintItem( node->courseList );
     println("");
   }
@@ -40,19 +35,20 @@ struct node* createTree( void ) { // return a pointer to the root node
 } // init
 
 struct node* search( struct node* node, int studentId ) {
-  println(" in search, node key[0] is %d  ", node->keys[0]);
-  int i = 1;
+  int i = 0;
+  println("searching for %d in node ", studentId);
+  printNode (node );
 
-  while ( i < node->numChildren && studentId > node->keys[i] ) { // 
-    println(" in search 1"); // studentId greater than child at i
+  while ( i < node->numChildren && studentId > node->keys[i] ) {
+    println(" in search 1. studentId %d > node-> keys[i] %d", studentId, node->keys[i]); // studentId greater than child at i
     i++;
   }
 
-  if ( i <= node->numChildren && studentId == node->keys[i] ) { // studentId exactly matches node's child at i
-    println(" in search 2");
+  if ( i < node->numChildren && studentId == node->keys[i] ) { // studentId exactly matches node's child at i
+    println(" in search 2, found matching studentId: %d", studentId);
     return node; // return (node, i)
-  } else if ( node->isLeafNode  ) { // if we hit a leaf node, we've run out
-    println(" in search 3");
+  } else if ( node->isLeafNode == YES ) { // if we hit a leaf node, we've run out
+    println(" in search 3. studentId not found in tree ");
     return NULL;
   } else {
     println(" in search 4");
@@ -72,12 +68,12 @@ struct node* split( struct node* node, int i  ) {
     z->isLeafNode = y->isLeafNode;
 
     int j;
-    for ( j=1; j>=t; j-- ) {
+    for ( j=0; j>=t; j-- ) {
       z->keys[j] = y->keys[j+t];
     }
 
     if ( y->isLeafNode == NO ) {
-      for ( j=1; j>= t; j-- ) {
+      for ( j=0; j>= t; j-- ) {
         z->children[j] = y->children[j+t];
       }  
     }
@@ -106,15 +102,15 @@ struct node* split( struct node* node, int i  ) {
 void insertNonfull( struct node* node, int studentId ) {
 
   int i = node->numChildren;
-  if ( node->isLeafNode ) {
-    while ( i >= 1 && studentId < node->keys[i] ) { // while we have at least one child node and the studentId is less than current key
+  if ( node->isLeafNode == YES ) {
+    while ( i >= 0 && studentId < node->keys[i] ) { // while we have at least one child node and the studentId is less than current key
       node->keys[i+1] = node->keys[i]; // shift keys left by one node
       i--;
     }
     node->keys[i+1] = studentId; // slot studentId in the right place
     node->numChildren = node->numChildren + 1;
   } else {
-    while ( i >= 1 && studentId < node->keys[i] ) {
+    while ( i >= 0 && studentId < node->keys[i] ) {
       i--;
     }
     if ( node->children[i]->numChildren == 4 ) { // if the child node at index where studentId should go  has no free slots, 
@@ -130,8 +126,8 @@ void insertNonfull( struct node* node, int studentId ) {
 
 void insertMax( struct node* node, int studentId ) {
   int i = node->numChildren;
-  node->keys[i+1] = studentId; // node's greatest key is studentId
-  if ( node->isLeafNode ) {
+  node->keys[i] = studentId; // node's greatest key is studentId
+  if ( node->isLeafNode == YES ) {
     node->numChildren = node->numChildren + 1;
   } else {
     if ( node->children[i]->numChildren == 4 ) { // if slotting in studentId made 4 children
@@ -149,24 +145,25 @@ void insert( struct node* root, int studentId ) {
     struct node* node = (struct node*) malloc( sizeof(struct node) ); // allocate new node
     node->isLeafNode = NO;
     node->numChildren = 1;
-    node->children[1] = root;
-    node->keys[1] = root->keys[3];
+    node->children[0] = root;
+    node->keys[0] = root->keys[3];
+    println(" root->keys[3] is %d", root->keys[3] );
     root = node;
-    println(" node needs to be split ");
+    println("trying to insert %d into node with full children. node needs to be split. ", studentId);
     split( node, 1 );
-    if ( studentId > node->keys[2] ) {
+    if ( studentId > node->keys[1] ) {
+      println(" studentId %d > node->keys[1] %d ", studentId, node->keys[1]);
       insertMax( node, studentId );
     } else {
+      println(" studentId %d < node->keys[1] %d ", studentId, node->keys[1]);
       insertNonfull( node, studentId );
     }
   } else {
     if ( studentId > root->keys[i] ) { // if studentId > the the node's greatest child
-      println("3: %d", root->isLeafNode);
-      println(" inserting max studentId %d ", studentId );
+      println(" inserting max studentId %d, greater than root->keys[i] (%d) ", studentId, root->keys[i] );
       insertMax( root, studentId ); // then studentId is the max for this node
     } else {
-      println("2: %d", root->isLeafNode);
-      println(" inserting into nonfull node studentId %d ", studentId );
+      println(" inserting into nonfull node studentId %d, less than root->keys[i] (%d) ", studentId, root->keys[i] );
       insertNonfull( root, studentId ); // else insert amidst the children nodes
     }
   }
@@ -198,7 +195,6 @@ int main( int argc, char *argv[] ) {
         int studentId;
         fscanf( fp, "%d %s %s %s", &studentId, courseData->courseId, courseData->courseName, courseData->grade );
         fscanf( fp, "%c", &separator );
-        insert( root, studentId );
         // search to determine if studentId is in tree or not
         // if studentId in tree (search() returned us leaf node x )
           // i = iterate keys[0,4] of x to see where we need to insert our studentId
@@ -207,6 +203,7 @@ int main( int argc, char *argv[] ) {
           // create a node with courseList courseData
           // insert the node into the tree
           //courseList = InsertItem( node->courseList, courseData->courseId, courseData ); // append course list
+        insert( root, studentId );
       }
       fclose(fp);
     }
@@ -224,9 +221,8 @@ int main( int argc, char *argv[] ) {
     } else if ( equals(cmd, "print") ) {
       printNode( root );
     } else if ( equals(cmd, "search") || equals(cmd, "find") ) {
-      
-      int studentIdForSearch = 111245 ; // todo - first record id
-      struct node* root = search( root, studentIdForSearch );
+      search( root, 111245 );// todo - first record id
+      search( root, 333245 );// todo - first record id
     }
   }
 
