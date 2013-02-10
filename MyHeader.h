@@ -9,7 +9,7 @@
 #define   YES 1
 #define   NO  0
 
-#define println(...) printf( __VA_ARGS__ ); printf("\n")
+#define println(...) printf("%d:\t", __LINE__); printf( __VA_ARGS__ ); printf("\n")
 #define equals(a, b) !strcmp(a, b)
 
 struct courseData {
