@@ -1,7 +1,6 @@
 #include	<stdio.h>
 #include 	<stdlib.h>
-#include        <string.h>
-#include	"MyHeader.h"
+#include  <string.h>
 
 /*
  * This set of calls creates a linked list, and allows
@@ -11,24 +10,31 @@
  * 				ad@di.uoa.gr 02/03
  */
 
+struct item {
+	char *word; //courseId
+	struct item *next;
+	struct courseData *courseData; //courseId[7], courseName[8], grade[3];
+};
+
 
 struct item *CreateItem(struct item *p)
 {	
+	printf("createItem\n");
 	p=NULL;
 	return(p);
 }
 
-struct item *InsertItem(struct item *p, char *w)
+struct item *InsertItem(struct item *p, char *w, struct courseData *data)
 {
 	if ( p==NULL ) {
 		p = (struct item *) malloc (sizeof(struct item)+1);
 		p->word = (char *) malloc(sizeof(w)+1);
 		strcpy(p->word,w);
+		p->courseData = data;
 		p->next = NULL;
-		}
-	else 	{
-		p->next = InsertItem(p->next, w);
-		}
+	} else {
+		p->next = InsertItem(p->next, w, data);
+	}
 	return(p);
 }
 
@@ -100,7 +106,7 @@ int	IsMemberOfList(struct item *p, char *w)
 }
 
 
-void	PrintItem(struct item *p)
+void PrintItem(struct item *p)
 { 
 	struct item *aux=NULL;
 	
@@ -110,7 +116,7 @@ void	PrintItem(struct item *p)
 		}
 	aux = p;
 	while (aux!= NULL){
-		printf("Element %s\n",aux->word);
+		printf("Element courseId:  %s, grade:  %s\n", aux->word, aux->courseData->grade);
 		aux=aux->next;
 		}
 }
