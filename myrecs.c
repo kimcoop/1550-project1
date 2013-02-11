@@ -273,6 +273,7 @@ int main( int argc, char *argv[] ) {
           // create a node with courseList courseData
           // insert the node into the tree
           //courseList = InsertItem( node->courseList, courseData->courseId, courseData ); // append course list
+        println("");
         root = insert( root, studentId );
       }
 
@@ -299,6 +300,7 @@ int main( int argc, char *argv[] ) {
       scanf("%d", &studentId);
       search( root, studentId );
     } else if ( strEquals(cmd, "ins") ) { // studentId, courseId, courseName, grade
+      println("inserting %d %s %s %s", studentId, courseId, courseName, grade);
       scanf("%d %s %s %s", &studentId, courseId, courseName, grade);
       root = insert( root, studentId ); // insert new data
     } else if ( strEquals(cmd, "load") ) { // inputFile
