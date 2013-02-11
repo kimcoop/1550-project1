@@ -88,7 +88,7 @@ struct node* split( struct node* node, int i  ) {
 
   int j;
   for ( j=0; j < median; j++ ) {
-    println( "j is %d. median is %d", j, median);
+    println( "j=%d. median i=%d. z->keys[%d] was %d, now is %d", j, median, j, z->keys[j], y->keys[j+median]);
     z->keys[j] = y->keys[j+median];
   }
 
@@ -97,10 +97,10 @@ struct node* split( struct node* node, int i  ) {
   if ( !y->isLeafNode ) {
     for ( j=0; j < median; j++ ) {
       z->children[j] = y->children[j+median];
-    }  
+    } 
   }
 
-  y->numChildren = median + 1; // acount for newly-added child
+  y->numChildren = median;
   println("y->numChildren = %d", y->numChildren);
 
   for ( j=node->numChildren; j >= i; j-- ) {
@@ -108,12 +108,17 @@ struct node* split( struct node* node, int i  ) {
     node->keys[j] = node->keys[i];
   }
 
-  println(" making node's %dth child = z", i );
-  node->children[i] = z; // plop new node into place
+  println(" making node's %dth child = z", i+1 );
+  node->children[i+1] = z; // plop new node into place
   println("node->keys[%d] previously=%d, now=%d ", i, node->keys[i], y->keys[median-1] );
   node->keys[i] = y->keys[median-1];
   node->numChildren = node->numChildren+1;
+  println("ROOT:");
   printNode(node);
+  println("Y NODE:");
+  printNode(y);
+  println("Z NODE:");
+  printNode(z);
 
   return node;
 
@@ -124,7 +129,7 @@ struct node* insertNonfull( struct node* node, int studentId ) {
   int i = node->numChildren;
   if ( node->isLeafNode == YES ) {
     while ( i > 0 && studentId < node->keys[i-1] ) { // while we have at least one child node and the studentId is less than current key
-      println(" i (%d) > 0 && studentId < node->keys[%d] (%d)", i, i, node->keys[i-1]);
+      println(" i (%d) > 0 && studentId < node->keys[%d] (%d)", i, i-1, node->keys[i-1]);
       node->keys[i] = node->keys[i-1]; // shift keys right by one node
       i--;
     }
@@ -137,7 +142,7 @@ struct node* insertNonfull( struct node* node, int studentId ) {
       println("studentId < node's greatest key in pos %d = %d ", i-1, node->keys[i-1] );
       i--;
     }
-    if ( node->children[i]->numChildren == 4 ) { // if the child node at index where studentId should go has no free slots, 
+    if ( node->children[i]->numChildren == 4 ) { // if the child node at index where studentId should go has no free slots,
       node = split( node, i );                  // split the node
       if ( studentId > node->keys[i] ) { // if studentId greater than node keys[i]
         println("studentId %d> node->keys[i] %d", studentId, node->keys[i]);
@@ -145,7 +150,8 @@ struct node* insertNonfull( struct node* node, int studentId ) {
       }
     }
     println("about to insert studentId %d into nonfull node with greatest key %d", studentId, node->keys[i]);
-    node = insertNonfull( node->children[i+1], studentId ); // insert studentId into node's ith child (nonfull) // TODO - why is this i+1??
+    printNode( node->children[i] );
+    node = insertNonfull( node->children[i], studentId ); // insert studentId into node's ith child (nonfull) // TODO - why is this i+1??
   }
   return node;
 } // insertNonfull
@@ -153,21 +159,26 @@ struct node* insertNonfull( struct node* node, int studentId ) {
 struct node* insertMax( struct node* node, int studentId ) {
   println(" insertMax ");
   int i = node->numChildren;
+  printNode( node);
+  println("node->keys[%d] was previously %d, now is %d", i, node->keys[i], studentId );
   node->keys[i] = studentId; // node's greatest key is studentId
   if ( node->isLeafNode == YES ) {
-    node->keys[i] = studentId; // node's greatest key is studentId
+    println(" node isLeafNode: ");
     node->numChildren = node->numChildren + 1;
+    printNode ( node);
   } else {
-    if ( node->children[i]->numChildren == 4 ) { // if slotting in studentId made 4 children
+    println(" node->children[%d]: ", i-1);
+    printNode ( node->children[i-1]);
+    if ( node->children[i-1]->numChildren == 4 ) { // if slotting in studentId made 4 children
       node = split( node, i );
       i++;
     }
-    node = insertMax( node->children[i], studentId );
+    node = insertMax( node->children[i-1], studentId );
   }
   return node;
 } // insertMax
 
-struct node* insert( struct node* root, int studentId ) { 
+struct node* insert( struct node* root, int studentId ) {
 // returns root node
   int i = root->numChildren;
   if ( i == 4 ) { // if node has no free slots
@@ -201,12 +212,30 @@ struct node* insert( struct node* root, int studentId ) {
 
 }// insert
 
-int programExit( void ) {
-  return 0;
+void freeNode( struct node* node ) {
+  if (node->numChildren > 0) {
+    int i;
+    for (i = 0; i < node->numChildren; i++) {
+      freeNode( node->children[i] );
+    }
+  }
+  free( node );
 }
 
+void freeTree( struct node* root ) {
+  println( "freeTree ");
+  println( "root->numChildren = %d ", root->numChildren);
+  if (root->numChildren > 0) {
+    int i;
+    for (i = 0; i < root->numChildren; i++) {
+      freeNode( root->children[i] );
+    }
+  }
+  free( root );
+} // freeTree
+
 int main( int argc, char *argv[] ) {
-   
+  
   struct node* root = NULL;
   root = createTree(); // points to root node of tree
   struct item *courseList = NULL;
@@ -250,17 +279,18 @@ int main( int argc, char *argv[] ) {
     if ( equals(cmd, "quit") || equals(cmd, "exit") ) { //action IS "quit" or "exit"
       execute = NO;
     } else if ( equals(cmd, "print") ) {
-      printTree( root );
+      // printTree( root );
+      printNode( root );
     } else if ( equals(cmd, "search") || equals(cmd, "find") ) {
       search( root, 111245 );
-      search( root, 333245 );
-      search( root, 111266 );
+      // search( root, 333245 );
+      // search( root, 111266 );
     }
   }
 
-  programExit();
-  exit(0);   
-  
+  freeTree( root );
+  exit(0);  
+ 
   return 0;
-  
+ 
 }
