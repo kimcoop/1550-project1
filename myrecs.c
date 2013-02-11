@@ -16,8 +16,8 @@ void printNode( struct node* node ) { //Print the node
     if ( node->numChildren > 0 ) {
       int i;
       printf("\t");
-      for ( i = 0; i < node->numChildren; i++ ) {
-        printf("keys[%d]=%d, \t", i, node->keys[i]  );
+      for ( i = 0; i < node->numChildren && i < 100; i++ ) {
+        printf("keys[%d]=%d, \t", i, node->keys[i]);
       }
     }
     if ( node->isLeafNode == YES ) { // then has courseData linkedList
@@ -52,6 +52,7 @@ struct node* createTree( void ) { // return a pointer to the root node
 
 struct node* search( struct node* node, int studentId ) {
   int i = 0;
+  println("node->numChildren %d && studentId > node->keys[0] %d", node->numChildren, node->keys[i]);
   while ( i < node->numChildren && studentId > node->keys[i] ) {
     i++;
   }
