@@ -5,12 +5,13 @@
 #define		FALSE	20
 #define		TRUE	30
 #define		MAXSIZE	64
+#define		MAX_COMMAND_SIZE 200
 
 #define   YES 1
 #define   NO  0
 
 #define println(...) printf("%d:\t", __LINE__); printf( __VA_ARGS__ ); printf("\n")
-#define equals(a, b) !strcmp(a, b)
+#define strEquals(a, b) !strcmp(a, b)
 
 struct courseData {
   char courseId[7], courseName[8], grade[3];

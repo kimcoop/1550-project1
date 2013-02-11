@@ -7,6 +7,7 @@ Project 1
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include  "MyHeader.h"
 #include "LinkedList.c"
 
@@ -31,6 +32,7 @@ void printNode( struct node* node ) { //Print the node
 } // printNode
 
 void printTree( struct node* root ) {
+  println("printTree");
   printNode( root );
   if ( !root->isLeafNode ) {
     println(" children ");
@@ -51,9 +53,11 @@ struct node* createTree( void ) { // return a pointer to the root node
 } // init
 
 struct node* search( struct node* node, int studentId ) {
+
+  println(" search");
   int i = 0;
   println("node->numChildren %d && studentId > node->keys[0] %d", node->numChildren, node->keys[i]);
-  while ( i < node->numChildren && studentId > node->keys[i] ) {
+  while ( i < node->numChildren && i < 5 && studentId > node->keys[i] ) {
     i++;
   }
   if ( i < node->numChildren && studentId == node->keys[i] ) { // studentId exactly matches node's child at i
@@ -64,15 +68,17 @@ struct node* search( struct node* node, int studentId ) {
     return NULL;
   } else {
     printNode ( node );
+    println(" ##\n i = %d", i );
+    printNode ( node->children[i] );
     return search( node->children[i], studentId ); // return
   }
 
 } // search
 
 struct node* split( struct node* node, int i  ) {
+  println("splitting node at position %d", i);
 
   struct node* z = (struct node*) malloc( sizeof(struct node) );
-  println("splitting node at position %d", i);
 
   println(" node->numChildren = %d", node->numChildren);
   struct node* y = (struct node*) node->children[i]; // y is node's leftmost child
@@ -136,7 +142,6 @@ struct node* insertNonfull( struct node* node, int studentId ) {
     node->keys[i] = studentId; // slot studentId in the right place
     println("node->keys[%d] is now studentId %d ", i, studentId);
     node->numChildren = node->numChildren + 1;
-    printNode(node);
   } else {
     while ( i >= 0 && studentId < node->keys[i-1] ) { // while studentId < node's greatest key
       println("studentId < node's greatest key in pos %d = %d ", i-1, node->keys[i-1] );
@@ -178,8 +183,10 @@ struct node* insertMax( struct node* node, int studentId ) {
   return node;
 } // insertMax
 
+
 struct node* insert( struct node* root, int studentId ) {
 // returns root node
+  println(" insert ");
   int i = root->numChildren;
   if ( i == 4 ) { // if node has no free slots
     struct node* node = (struct node*) malloc( sizeof(struct node) ); // allocate new node
@@ -213,6 +220,7 @@ struct node* insert( struct node* root, int studentId ) {
 }// insert
 
 void freeNode( struct node* node ) {
+  println( "freeNode" );
   if (node->numChildren > 0) {
     int i;
     for (i = 0; i < node->numChildren; i++) {
@@ -265,26 +273,50 @@ int main( int argc, char *argv[] ) {
           //courseList = InsertItem( node->courseList, courseData->courseId, courseData ); // append course list
         root = insert( root, studentId );
       }
+
       fclose(fp);
     }
   }
 
-  char cmd[100];
+  char cmd[MAX_COMMAND_SIZE];
   int execute = YES;
+  int studentId, studentId_a, studentId_b;
+  char courseId[7], courseName[8], grade[3];
+  char inputFile[MAX_COMMAND_SIZE];
 
   while ( execute ) {
     printf("Please enter your action: ");
     scanf("%s", cmd);
 
-    if ( equals(cmd, "quit") || equals(cmd, "exit") ) { //action IS "quit" or "exit"
+    if ( strEquals(cmd, "exit") ) {
       execute = NO;
-    } else if ( equals(cmd, "print") ) {
+    } else if ( strEquals(cmd, "print") ) {
       // printTree( root );
       printNode( root );
-    } else if ( equals(cmd, "search") || equals(cmd, "find") ) {
+    } else if ( strEquals(cmd, "find") ) {
+      println("search");
       search( root, 111245 );
-      // search( root, 333245 );
-      // search( root, 111266 );
+    } else if ( strEquals(cmd, "debug") ) {
+      println(" root->numChildren = %d", root->numChildren);
+      println("PRINTING ROOT");
+      printNode( root );
+    } else if ( strEquals(cmd, "ins") ) { // studentId, courseId, courseName, grade
+      scanf("%d %s %s %s", &studentId, courseId, courseName, grade);
+      println("inserting %d %s %s %s", studentId, courseId, courseName, grade);
+      root = insert( root, studentId ); // insert new data
+      // root = insertNode( root, studentId );
+    } else if ( strEquals(cmd, "load") ) { // inputFile
+      scanf("%s", inputFile);
+      println("load");
+    } else if ( strEquals(cmd, "range") ) { // studentId_a, studentId_b
+      scanf("%d %d", &studentId_a, &studentId_b);
+      println("range");
+    } else if ( strEquals(cmd, "gpa") ) { // gpa <studentId> or gpa<studentId_a> <studentId_b> (range) 
+      // for now, assume we have one GPA input
+      scanf("%d", &studentId);
+      println("finding GPA for studentId %d", studentId);
+    } else if ( strEquals(cmd, "verify") ) { // check all nodes to ensure properties of 2-4 tree
+      println("verify");
     }
   }
 
