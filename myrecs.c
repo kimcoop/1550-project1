@@ -22,7 +22,10 @@ void printNode( struct node* node ) { //Print the node
       }
     }
     if ( node->isLeafNode == YES ) { // then has courseData linkedList
-      PrintItem( node->courseList );
+      int i;
+      for ( i = 0; i < node->numChildren && i < 100; i++ ) {
+        PrintItem( node->courseList[i] );
+      } 
       println("");
     }
     println("");
@@ -34,7 +37,7 @@ void printNode( struct node* node ) { //Print the node
 void printTree( struct node* root ) {
   println("printTree");
   printNode( root );
-  if ( !root->isLeafNode ) {
+  if ( root->numChildren > 0 ) {
     println(" children ");
     int i;
     for ( i = 0; i < root->numChildren; i++ ) {
@@ -48,7 +51,6 @@ struct node* createTree( void ) { // return a pointer to the root node
   struct node* root = (struct node*) malloc( sizeof(struct node) );
   root->isLeafNode = YES;
   root->numChildren = 0;
-  root->courseList = NULL;
   return root;
 } // init
 
@@ -143,7 +145,7 @@ struct node* insertNonfull( struct node* node, int studentId ) {
     println("node->keys[%d] is now studentId %d ", i, studentId);
     node->numChildren = node->numChildren + 1;
   } else {
-    while ( i >= 0 && studentId < node->keys[i-1] ) { // while studentId < node's greatest key
+    while ( i > 0 && studentId < node->keys[i-1] ) { // while studentId < node's greatest key
       println("studentId < node's greatest key in pos %d = %d ", i-1, node->keys[i-1] );
       i--;
     }
@@ -291,20 +293,14 @@ int main( int argc, char *argv[] ) {
     if ( strEquals(cmd, "exit") ) {
       execute = NO;
     } else if ( strEquals(cmd, "print") ) {
-      // printTree( root );
-      printNode( root );
+      printTree( root );
+      // printNode( root );
     } else if ( strEquals(cmd, "find") ) {
-      println("search");
-      search( root, 111245 );
-    } else if ( strEquals(cmd, "debug") ) {
-      println(" root->numChildren = %d", root->numChildren);
-      println("PRINTING ROOT");
-      printNode( root );
+      scanf("%d", &studentId);
+      search( root, studentId );
     } else if ( strEquals(cmd, "ins") ) { // studentId, courseId, courseName, grade
       scanf("%d %s %s %s", &studentId, courseId, courseName, grade);
-      println("inserting %d %s %s %s", studentId, courseId, courseName, grade);
       root = insert( root, studentId ); // insert new data
-      // root = insertNode( root, studentId );
     } else if ( strEquals(cmd, "load") ) { // inputFile
       scanf("%s", inputFile);
       println("load");

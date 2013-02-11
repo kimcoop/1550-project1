@@ -10,13 +10,6 @@
  * 				ad@di.uoa.gr 02/03
  */
 
-struct item {
-	char *word; //courseId
-	struct item *next;
-	struct courseData *courseData; //courseId[7], courseName[8], grade[3];
-};
-
-
 struct item *CreateItem(struct item *p)
 {	
 	printf("createItem\n");
