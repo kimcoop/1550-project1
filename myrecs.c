@@ -120,7 +120,7 @@ struct node* split( struct node* node, int i  ) {
 
 } // split
 
-struct node* insertNonfull( struct node* node, int studentId ) {
+struct node* insertNonfull( struct node* node, int studentId, struct item* item ) {
   println("insertNonfull");
   int i = node->numChildren;
   if ( node->isLeafNode == YES ) {
@@ -129,6 +129,11 @@ struct node* insertNonfull( struct node* node, int studentId ) {
       i--;
     }
     node->keys[i] = studentId; // slot studentId in the right place
+    if ( node->courseList[i] != NULL ) {
+      println(" node->courseList[%d] was null, now we're creating it ", i);
+      // node->courseList[i] = CreateItem( item );
+    }
+    node->courseList[i] = InsertItem( node->courseList[i], item );
     node->numChildren = node->numChildren + 1;
   } else {
     while ( i > 0 && studentId < node->keys[i-1] ) { // while studentId < node's greatest key
@@ -140,7 +145,7 @@ struct node* insertNonfull( struct node* node, int studentId ) {
         i++;
       }
     }
-    node = insertNonfull( node->children[i], studentId ); // insert studentId into node's ith child (nonfull) // TODO - why is this i+1??
+    node = insertNonfull( node->children[i], studentId, item ); // insert studentId into node's ith child (nonfull) // TODO - why is this i+1??
   }
   return node;
 } // insertNonfull
@@ -170,8 +175,10 @@ struct node* insertMax( struct node* node, int studentId, struct item* item ) {
 struct node* insertData( struct node* root, int studentId, char* courseId, char* courseName, char* grade ) { // char courseId[7], courseName[8], grade[3];
 
   struct item* item = CreateItemWithData( courseId, courseName, grade );
+  PrintItem( item );
   root = insert( root, studentId, item );
   return root;
+
 } // insertData
 
 struct node* insert( struct node* root, int studentId, struct item* item ) {
@@ -187,16 +194,16 @@ struct node* insert( struct node* root, int studentId, struct item* item ) {
     root = node;
     node = split( node, 0 );
     if ( studentId > node->keys[1] ) {
-      node = insertMax( node, studentId );
+      node = insertMax( node, studentId, item );
     } else {
-      node = insertNonfull( node, studentId );
+      node = insertNonfull( node, studentId, item );
     }
   } else {
     int j = i != 0 ? i-1 : 0;
     if ( studentId > root->keys[j] ) { // if studentId > the the node's greatest child
-      root = insertMax( root, studentId ); // then studentId is the max for this node
+      root = insertMax( root, studentId, item ); // then studentId is the max for this node
     } else {
-      root = insertNonfull( root, studentId ); // else insert amidst the children nodes
+      root = insertNonfull( root, studentId, item ); // else insert amidst the children nodes
     }
   }
   return root;
@@ -238,7 +245,8 @@ struct node* loadFile( struct node* root, char* filename ) {
     while ( !feof(fp) ) {
       // courseList = CreateItem( courseList );
       int studentId;
-      char* courseId, *courseName, *grade;
+      // char *courseId, *courseName, *grade;
+      char courseId[7], courseName[8], grade[3];
       fscanf( fp, "%d %s %s %s", &studentId, courseId, courseName, grade );
       fscanf( fp, "%c", &separator );
      

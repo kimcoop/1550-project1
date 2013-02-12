@@ -15,7 +15,7 @@
 
 struct courseData {
   // char courseId[7], courseName[8], grade[3];
-  char* courseId, *courseName, *grade;
+  char *courseId, *courseName, *grade;
   struct courseData *next;
 };
 
@@ -34,3 +34,4 @@ struct node {
 };
 
 void PrintItem(struct item *p);
+struct node* insert( struct node* root, int studentId, struct item* item );

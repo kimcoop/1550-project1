@@ -45,14 +45,14 @@ struct item* CreateItemWithData( char* courseId, char* courseName, char* grade )
 // 	return(p);
 //}
 
-struct item *InsertItem( struct item *p, struct courseData *data ) {
+struct item *InsertItem( struct item *p, struct item* item ) {
 
 	if ( p==NULL ) {
 		p = (struct item *) malloc( sizeof(struct item)+1 );
-		p->courseData = data;
+		p->courseData = item->courseData;
 		p->next = NULL;
 	} else {
-		p->next = InsertItem( p->next, data );
+		p->next = InsertItem( p->next, item );
 	}
 	return(p);
 }
