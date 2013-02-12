@@ -14,12 +14,13 @@
 #define strEquals(a, b) !strcmp(a, b)
 
 struct courseData {
-  char courseId[7], courseName[8], grade[3];
+  // char courseId[7], courseName[8], grade[3];
+  char* courseId, *courseName, *grade;
   struct courseData *next;
 };
 
 struct item {
-	char *word; //courseId
+	// char *word; //courseId
 	struct item *next;
 	struct courseData *courseData; //courseId[7], courseName[8], grade[3];
 };
