@@ -204,7 +204,7 @@ struct node* insert( struct node* root, int studentId ) {
       println(" studentId %d > node->keys[1] %d ", studentId, node->keys[1]);
       node = insertMax( node, studentId );
     } else {
-      println(" studentId %d < node->keys[0] %d ", studentId, node->keys[0]);
+      println(" studentId %d < node->keys[1] %d ", studentId, node->keys[1]);//i changed this from [0]
       node = insertNonfull( node, studentId );
     }
   } else {
@@ -244,41 +244,48 @@ void freeTree( struct node* root ) {
   free( root );
 } // freeTree
 
+struct node* loadFile( struct node* root, char* filename ) {
+  println("loadFile");
+  struct item *courseList = NULL;
+  FILE  *fp = NULL;
+  char separator;
+  if ( (fp = fopen( filename, "r" )) == NULL ) {
+    println("Unknown file");
+    exit(1);
+  } else {
+    while ( !feof(fp) ) {
+      // courseList = CreateItem( courseList );
+      struct courseData *courseData = (struct courseData*) malloc( sizeof(struct courseData) );
+      int studentId;
+      fscanf( fp, "%d %s %s %s", &studentId, courseData->courseId, courseData->courseName, courseData->grade );
+      fscanf( fp, "%c", &separator );
+      // search to determine if studentId is in tree or not
+      // if studentId in tree (search() returned us leaf node x )
+        // i = iterate keys[0,4] of x to see where we need to insert our studentId
+        // insert item into i->courseList
+      // else (search returned null)
+        // create a node with courseList courseData
+        // insert the node into the tree
+        //courseList = InsertItem( node->courseList, courseData->courseId, courseData ); // append course list
+      println("");
+      root = insert( root, studentId );
+    } // end while 
+
+    fclose(fp);
+  }
+  return root;
+
+} // loadFile
+
 int main( int argc, char *argv[] ) {
   
   struct node* root = NULL;
   root = createTree(); // points to root node of tree
-  struct item *courseList = NULL;
-  FILE  *fp = NULL;
-  char separator;
-
+  
   if ( argc != 2 ) {
-    exit(1);
+    println(" no filename provided." );
   } else {
-    if ( (fp = fopen(argv[1],"r")) == NULL ) {
-      println("Unknown file");
-      exit(1);
-    } else {
-      while ( !feof(fp) ) {
-        // courseList = CreateItem( courseList );
-        struct courseData *courseData = (struct courseData*) malloc(sizeof(struct courseData));
-        int studentId;
-        fscanf( fp, "%d %s %s %s", &studentId, courseData->courseId, courseData->courseName, courseData->grade );
-        fscanf( fp, "%c", &separator );
-        // search to determine if studentId is in tree or not
-        // if studentId in tree (search() returned us leaf node x )
-          // i = iterate keys[0,4] of x to see where we need to insert our studentId
-          // insert item into i->courseList
-        // else (search returned null)
-          // create a node with courseList courseData
-          // insert the node into the tree
-          //courseList = InsertItem( node->courseList, courseData->courseId, courseData ); // append course list
-        println("");
-        root = insert( root, studentId );
-      }
-
-      fclose(fp);
-    }
+    root = loadFile( root, argv[1] );
   }
 
   int execute = YES;
@@ -287,7 +294,7 @@ int main( int argc, char *argv[] ) {
     char cmd[MAX_COMMAND_SIZE];
     int studentId, studentId_a, studentId_b;
     char courseId[7], courseName[8], grade[3];
-    char inputFile[MAX_COMMAND_SIZE];
+    char filename[MAX_COMMAND_SIZE];
 
     printf("Please enter your action: ");
     scanf("%s", cmd);
@@ -310,9 +317,10 @@ int main( int argc, char *argv[] ) {
       println("inserting %d %s %s %s", studentId, courseId, courseName, grade);
       root = insert( root, studentId ); // insert new data
     
-    } else if ( strEquals(cmd, "load") ) { // inputFile
-      scanf("%s", inputFile);
-      println("load");
+    } else if ( strEquals(cmd, "load") ) { // filename
+      scanf("%s", filename);
+      println("load from file %s", filename);
+      loadFile( root, filename );
     
     } else if ( strEquals(cmd, "range") ) { // studentId_a, studentId_b
       scanf("%d %d", &studentId_a, &studentId_b);
