@@ -39,17 +39,17 @@ struct item *DeleteItem(struct item *p, char *w)
 	if (aux==NULL) 
 		return (NULL);
 	else {
-		if ( strcmp(aux->word, w) == 0 ){
+		if ( strcmp(aux->word, w) == 0 ) {
 			throwaway=aux;
 			aux = aux->next;
 			free (throwaway) ;
 			throwaway = NULL;
 			return(aux);
-			}
+		}
 		else	{
 			aux->next=DeleteItem(aux->next, w);
 			return(aux);
-			}
+		}
 	}
 }
 
@@ -66,11 +66,12 @@ char *GetFirstItem(struct item *p)
 		strcpy(w, aux->word);
 		printf("first word is %s \n",w);
 		return(w);
-		}
+	}
 }
 	
 char *GetLastItem(struct item *p)
-{	struct	item	*aux=NULL;
+{	
+	struct	item	*aux=NULL;
 	char		*w=NULL;
 	
 	aux=p;
@@ -80,21 +81,22 @@ char *GetLastItem(struct item *p)
 		while (aux->next!=NULL)
 			aux=aux->next;
 		w = (char *)malloc(sizeof(aux->word)+1);
-                strcpy(w, aux->word);
-                printf("last word is %s \n",w);
-                return(w);
-                }            
+    strcpy(w, aux->word);
+    printf("last word is %s \n",w);
+    return(w);
+   }            
 }
 
 int	IsMemberOfList(struct item *p, char *w)
-{	struct	item	*aux=NULL;
+{	
+	struct	item	*aux=NULL;
 	
 	aux = p;
-	while (aux!=NULL){
+	while (aux!=NULL) {
 		if ( strcmp( aux->word, w) == 0 )
 			return(YES);
 		aux=aux->next;
-		}
+	}
 	return(NO);
 }
 
@@ -103,13 +105,13 @@ void PrintItem(struct item *p)
 { 
 	struct item *aux=NULL;
 	
-	if ( p == NULL ){
-		printf("List is Empty of Items\n");
+	if ( p == NULL ) {
+		printf("List is empty of items\n");
 		return;
-		}
+	}
 	aux = p;
-	while (aux!= NULL){
+	while (aux!= NULL) {
 		printf("Element courseId:  %s, grade:  %s\n", aux->word, aux->courseData->grade);
 		aux=aux->next;
-		}
+	}
 }
