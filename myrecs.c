@@ -16,13 +16,14 @@ void printNode( struct node* node ) { //Print the node
     println(">>NODE: numChildren: %d, isLeafNode?: %d", node->numChildren, node->isLeafNode);
     println(">>(printing node's keys to index %d)", node->numChildren);
     int i;
-    for ( i = 0; i < node->numChildren && i < 100; i++ ) {
+    for ( i = 0; i < node->numChildren; i++ ) {
       println(">>keys[%d]=%d, \t", i, node->keys[i]);
     }
     if ( node->isLeafNode == YES ) { // then has courseData linkedList
       println(">>(printing node's children course data to index %d)", node->numChildren);
       int i;
-      for ( i = 0; i < node->numChildren && i < 100; i++ ) {
+      for ( i = 0; i < node->numChildren; i++ ) {
+        println("i = %d", i);
         PrintItem( node->courseList[i] );
       } 
     }
@@ -97,17 +98,20 @@ struct node* split( struct node* node, int i  ) {
   if ( !y->isLeafNode ) {
     for ( j=0; j < median; j++ ) {
       z->children[j] = y->children[j+median];
+      z->courseList[j] = y->courseList[j+median];
     } 
   }
 
   y->numChildren = median;
   for ( j=node->numChildren; j >= i; j-- ) {
     node->children[j] = node->children[i];
+    node->courseList[j] = node->courseList[i];
     node->keys[j] = node->keys[i];
   }
 
   node->children[i+1] = z; // plop new node into place
   node->keys[i] = y->keys[median-1];
+  node->courseList[i] = y->courseList[median-1];
   node->numChildren = node->numChildren+1;
   println("ROOT:");
   printNode(node);
@@ -129,10 +133,11 @@ struct node* insertNonfull( struct node* node, int studentId, struct item* item 
       i--;
     }
     node->keys[i] = studentId; // slot studentId in the right place
-    if ( node->courseList[i] != NULL ) {
+    if ( node->courseList[i] == NULL ) {
       println(" node->courseList[%d] was null, now we're creating it ", i);
-      // node->courseList[i] = CreateItem( item );
     }
+    println(" insertItem into node with key %d", node->keys[i]);
+    PrintItem ( item );
     node->courseList[i] = InsertItem( node->courseList[i], item );
     node->numChildren = node->numChildren + 1;
   } else {
@@ -155,10 +160,11 @@ struct node* insertMax( struct node* node, int studentId, struct item* item ) {
   int i = node->numChildren;
   node->keys[i] = studentId; // node's greatest key is studentId
   if ( node->isLeafNode == YES ) {
-    if ( node->courseList[i] != NULL ) {
+    if ( node->courseList[i] == NULL ) {
       println(" node->courseList[%d] was null, now we're creating it ", i);
-      // node->courseList[i] = CreateItem( item );
     }
+    println(" insertItem into node with key %d", node->keys[i]);
+    PrintItem ( item );
     node->courseList[i] = InsertItem( node->courseList[i], item );
     node->numChildren = node->numChildren + 1;
   } else {
