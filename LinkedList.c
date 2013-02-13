@@ -18,14 +18,13 @@ struct item *CreateItem(struct item *p) {
 }
 
 struct item* CreateItemWithData( char* courseId, char* courseName, char* grade ) {
+
 	struct item * p = (struct item *) malloc( sizeof(struct item)+1 );
+  println(" CreateItemWithData( %s %s %s )", courseId, courseName, grade );
+	strcpy( p->courseId, courseId );
+  strcpy( p->courseName, courseName );
+  strcpy( p->grade, grade );
 
-	struct courseData *data = (struct courseData*) malloc( sizeof(struct courseData) );
-	data->courseId = courseId;
-  data->courseName = courseName;
-  data->grade = grade;
-
-	p->courseData = data;
 	p->next = NULL;
 	println(" CreateItemWithData. returning item: ");
 	PrintItem( p );
@@ -49,11 +48,14 @@ struct item* CreateItemWithData( char* courseId, char* courseName, char* grade )
 
 struct item *InsertItem( struct item *p, struct item* item ) {
 
-	if ( p==NULL ) {
+	if ( p == NULL ) {
 		p = (struct item *) malloc( sizeof(struct item)+1 );
-		println(" p (linked list node) was null. courseId is %s", item->courseData->courseId );
-		p->courseData = item->courseData;
+		println("InsertItem. p (linked list node) was null. courseId is %s", item->courseId );
+		strcpy( p->courseId, item->courseId );
+  	strcpy( p->courseName, item->courseName );
+  	strcpy( p->grade, item->grade );
 		p->next = NULL;
+		// free( item ); // todo - do we need this?
 	} else {
 		println(" if p (existing node in linked list) isn't null, we come in here ");
 		p->next = InsertItem( p->next, item );
@@ -141,7 +143,9 @@ void PrintItem( struct item *p ) {
 	}
 	aux = p;
 	while ( aux != NULL ) {
-		println(" element courseId: %s", aux->courseData->courseId );
+		println(" aux->courseId == NULL ?: %d", (aux->courseId == NULL) );
+		println(" element courseId: %s", aux->courseId );
+		println(" aux->next == NULL ?: %d", (aux->next == NULL) );
 		// println("in PrintItem: Element courseId: %s, name: %s,  grade:  %s\n", aux->courseData->courseId, aux->courseData->courseName, aux->courseData->grade);
 		aux = aux->next;
 	}

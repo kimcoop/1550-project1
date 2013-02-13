@@ -14,17 +14,18 @@ Project 1
 void printNode( struct node* node ) { //Print the node
   if ( node != NULL ) {
     println(">>NODE: numChildren: %d, isLeafNode?: %d", node->numChildren, node->isLeafNode);
-    println(">>(printing node's keys to index %d)", node->numChildren);
+    println(">>node's keys to index %d:", node->numChildren);
     int i;
     for ( i = 0; i < node->numChildren; i++ ) {
       println(">>keys[%d]=%d, \t", i, node->keys[i]);
     }
     if ( node->isLeafNode == YES ) { // then has courseData linkedList
-      println(">>(printing node's children course data to index %d)", node->numChildren);
+      println(">>node's children course data to index %d:", node->numChildren);
       int i;
       for ( i = 0; i < node->numChildren; i++ ) {
         println("i = %d", i);
-        PrintItem( node->courseList[i] );
+        println(" node->courseList[i]->courseName = %s", node->courseList[i]->courseName );
+        // PrintItem( node->courseList[i] );
       } 
     }
   } else {
@@ -49,6 +50,10 @@ struct node* createTree( void ) { // return a pointer to the root node
   struct node* root = (struct node*) malloc( sizeof(struct node) );
   root->isLeafNode = YES;
   root->numChildren = 0;
+  // int i;
+  // for ( i = 0; i < 4 ; i++ ) {
+  //   root->courseList[i] = (struct item*) (malloc( sizeof(struct item)+1 ));
+  // }
 
   return root;
 } // init
@@ -134,13 +139,10 @@ struct node* insertNonfull( struct node* node, int studentId, struct item* item 
     }
     node->keys[i] = studentId; // slot studentId in the right place
     if ( node->courseList[i] == NULL ) {
-      println(" node->courseList[%d] was null, appending item with courseName %s ", i, item->courseData->courseName);
+      println(" node->courseList[%d] was null, appending item with courseName %s ", i, item->courseName);
     }
-    println(" insertNonfull: insertItem into node with key %d", node->keys[i]);
     node->courseList[i] = InsertItem( node->courseList[i], item );
     node->numChildren = node->numChildren + 1;
-    println(" after attaching courseList[%d], printItem:", i );
-    PrintItem ( item );
   } else {
     while ( i > 0 && studentId < node->keys[i-1] ) { // while studentId < node's greatest key
       i--;
@@ -163,20 +165,16 @@ struct node* insertMax( struct node* node, int studentId, struct item* item ) {
   node->keys[i] = studentId; // node's greatest key is studentId
   if ( node->isLeafNode == YES ) {
     if ( node->courseList[i] == NULL ) {
-      println(" node->courseList[%d] was null, appending item with courseName %s ", i, item->courseData->courseName);
+      println(" node->courseList[%d] was null, about to insert item with courseName %s ", i, item->courseName);
     }
-    println("&&&&just inserted item into node->courseList[%d]: ", i);
-    printNode( node );
-    println(" insertMax: insertItem into node with key %d", node->keys[i]);
-    PrintItem ( item );
     node->courseList[i] = InsertItem( node->courseList[i], item );
+    println("got here");
     node->numChildren = node->numChildren + 1;
   } else {
     if ( node->children[i-1]->numChildren == 4 ) { // if slotting in studentId made 4 children
       node = split( node, i );
       i++;
     }
-    printNode(node->children[i-1]);
     node = insertMax( node->children[i-1], studentId, item );
   }
 
@@ -187,8 +185,9 @@ struct node* insertData( struct node* root, int studentId, char* courseId, char*
 
   if ( studentId > 0 ) {
     struct item* item = CreateItemWithData( courseId, courseName, grade );
+    println( "item created." );
+    printNode( root );
     root = insert( root, studentId, item );
-    println(" returning root after insertData ");
     return root;
   } else {
     println("--error--\nCan't pass studentId as 0. Is there a trailing newline at the end of your input file?");
@@ -202,7 +201,7 @@ struct node* insert( struct node* root, int studentId, struct item* item ) {
   println(" insert. root->children = %d ", root->numChildren);
   int i = root->numChildren;
   if ( i == 4 ) { // if node has no free slots
-    struct node* node = (struct node*) malloc( sizeof(struct node) ); // allocate new node
+    struct node* node = (struct node*) malloc( sizeof(struct node)+1 ); // allocate new node
     node->isLeafNode = NO;
     node->numChildren = 1;
     node->children[0] = root; // new node's first child is root
@@ -251,7 +250,7 @@ void freeTree( struct node* root ) {
 } // freeTree
 
 struct node* loadFile( struct node* root, char* filename ) {
-  println("loadFile");
+
   struct item *courseList = NULL;
   FILE  *fp = NULL;
   char separator;
@@ -264,18 +263,15 @@ struct node* loadFile( struct node* root, char* filename ) {
       char courseId[7], courseName[8], grade[3];
       fscanf( fp, "%d %s %s %s", &studentId, courseId, courseName, grade );
       fscanf( fp, "%c", &separator );
-      println(" studentId: %d ", studentId );
       root = insertData( root, studentId, courseId, courseName, grade );
-      
       studentId = 0;
-      strlcpy( courseId, "", sizeof( courseId ) );
-      strlcpy( courseName, "", sizeof( courseName ) );
-      strlcpy( courseName, "", sizeof( courseName ) );
-      strlcpy( grade, "", sizeof( grade ) );
     } // end while 
 
     fclose(fp);
   }
+
+  println(" just before return in  loadFile is "); // is strlcpy clearing the original vals?
+  printNode( root );
 
   return root;
 } // loadFile
@@ -289,6 +285,11 @@ int main( int argc, char *argv[] ) {
     println("No filename provided." );
   } else {
     root = loadFile( root, argv[1] );
+
+
+    println(" root after loadFile is ");
+    printNode( root );
+
   }
 
   int execute = YES;
@@ -298,6 +299,9 @@ int main( int argc, char *argv[] ) {
     int studentId, studentId_a, studentId_b;
     char courseId[7], courseName[8], grade[3];
     char filename[MAX_COMMAND_SIZE];
+
+    println(" root before prompt is ");
+    printNode( root );
 
     printf("Please enter your action: ");
     scanf("%s", cmd);
@@ -317,13 +321,11 @@ int main( int argc, char *argv[] ) {
     
     } else if ( strEquals(cmd, "ins") ) { // studentId, courseId, courseName, grade
       scanf("%d %s %s %s", &studentId, courseId, courseName, grade);
-      println("inserting %d %s %s %s", studentId, courseId, courseName, grade);
       root = insertData( root, studentId, courseId, courseName, grade); // insert new data
     
     } else if ( strEquals(cmd, "load") ) { // filename
       scanf("%s", filename);
-      println("load from file %s", filename);
-      loadFile( root, filename );
+      root = loadFile( root, filename );
     
     } else if ( strEquals(cmd, "range") ) { // studentId_a, studentId_b
       scanf("%d %d", &studentId_a, &studentId_b);
@@ -343,6 +345,8 @@ int main( int argc, char *argv[] ) {
     }
 
     strlcpy( cmd, "", sizeof( cmd ) );
+    println(" AFTER execute loop, root is: ");
+    printNode( root );
 
   } // end while
 
