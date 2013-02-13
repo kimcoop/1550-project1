@@ -45,10 +45,6 @@ struct node* createTree( void ) { // return a pointer to the root node
   struct node* root = (struct node*) malloc( sizeof(struct node)+1 );
   root->isLeafNode = YES;
   root->numChildren = 0;
-  // int i;
-  // for ( i = 0; i < 4 ; i++ ) {
-  //   root->courseList[i] = (struct item*) (malloc( sizeof(struct item)+1 ));
-  // }
 
   return root;
 } // init
@@ -67,9 +63,6 @@ struct node* search( struct node* node, int studentId ) {
     println("search results: %d NOT FOUND  ", studentId);
     return NULL;
   } else {
-    printNode ( node );
-    println(" ##\n i = %d", i );
-    printNode ( node->children[i] );
     return search( node->children[i], studentId ); // return
   }
 
@@ -130,10 +123,17 @@ struct node* insertNonfull( struct node* node, int studentId, struct item* item 
   if ( node->isLeafNode == YES ) {
     while ( i > 0 && studentId < node->keys[i-1] ) { // while we have at least one child node and the studentId is less than current key
       node->keys[i] = node->keys[i-1]; // shift keys right by one node
+      node->courseList[i] = node->courseList[i-1]; // shift courseList right by one
       i--;
     }
+    println("node->keys[i] = %d, studentId  %d", node->keys[i], studentId );
+    if ( node->keys[i] != studentId ) {
+      node->courseList[i] = InsertItem( NULL, item );
+    } else {
+      node->courseList[i] = InsertItem( node->courseList[i], item );
+    }
     node->keys[i] = studentId; // slot studentId in the right place
-    node->courseList[i] = InsertItem( node->courseList[i], item );
+    println("--Inserting item with courseId %s into node with key %d", item->courseId, node->keys[i]);
     node->numChildren = node->numChildren + 1;
   } else {
     while ( i > 0 && studentId < node->keys[i-1] ) { // while studentId < node's greatest key
@@ -156,6 +156,7 @@ struct node* insertMax( struct node* node, int studentId, struct item* item ) {
   int i = node->numChildren;
   node->keys[i] = studentId; // node's greatest key is studentId
   if ( node->isLeafNode == YES ) {
+    println("++Inserting item with courseId %s into node with key %d", item->courseId, node->keys[i]);
     node->courseList[i] = InsertItem( node->courseList[i], item );
     node->numChildren = node->numChildren + 1;
   } else {

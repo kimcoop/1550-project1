@@ -28,8 +28,10 @@ struct node {
 };
 
 void PrintItem(struct item *p);
-struct node* insert( struct node* root, int studentId, struct item* item );
+struct item* freeList( struct item *p );
+struct item *freeItem(struct item *p);
 
+struct node* insert( struct node* root, int studentId, struct item* item );
 struct node* search( struct node* node, int studentId );
 
 float calculateGPA( struct node* root, int studentId );

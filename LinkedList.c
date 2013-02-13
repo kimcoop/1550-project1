@@ -20,7 +20,6 @@ struct item *CreateItem(struct item *p) {
 struct item* CreateItemWithData( char* courseId, char* courseName, char* grade ) {
 
 	struct item * p = (struct item *) malloc( sizeof(struct item)+1 );
-  println(" CreateItemWithData( %s %s %s )", courseId, courseName, grade );
 	strcpy( p->courseId, courseId );
   strcpy( p->courseName, courseName );
   strcpy( p->grade, grade );
@@ -47,28 +46,55 @@ struct item *InsertItem( struct item *p, struct item* item ) {
 
 	if ( p == NULL ) {
 		p = (struct item *) malloc( sizeof(struct item)+1 );
-		println("InsertItem. p (linked list node) was null. courseId is %s", item->courseId );
 		strcpy( p->courseId, item->courseId );
   	strcpy( p->courseName, item->courseName );
   	strcpy( p->grade, item->grade );
 		p->next = NULL;
-		// free( item ); // todo - do we need this?
 	} else {
-		println(" if p (node in linked list) isn't null, we come in here ");
 		p->next = InsertItem( p->next, item );
 	}
 	return p;
 }
 
 
-// struct item *DeleteItem(struct item *p, char *w) {	
+
+struct item* freeList( struct item* item ) {
+  while ( item->next != NULL ) {
+  	println("freeList");
+    item = freeList( item->next );
+  }
+  free( item );
+  return NULL;
+} // freeList
+
+// void freeItem( struct item* item ) {
+//   println( "freeItem ");
+//   while ( item != NULL && item->next != NULL ) {
+//     freeItem( item->next );
+//   }
+//   println(" freeing item ");
+//   free( item );
+// } // freeItem
+
+
+// void DeleteList( struct item *p ) {
+
+// 	while ( p->next != NULL ) {
+// 		p = DeleteItem( p, p->courseId );
+// 	}
+// 	free( p) ;
+// }
+
+
+// struct item *DeleteItem(struct item *p, char *courseId) {	
 
 // 	struct	item	*aux=NULL, *throwaway=NULL;
 // 	aux=p;
 // 	if (aux==NULL) 
 // 		return (NULL);
 // 	else {
-// 		if ( strcmp(aux->word, w) == 0 ) {
+// 		println(" aux->courseId=%s, courseId=%s. equal? %d", aux->courseId, courseId, (strcmp(aux->courseId, courseId) == 0));
+// 		if ( strcmp(aux->courseId, courseId) == 0 ) {
 // 			throwaway=aux;
 // 			aux = aux->next;
 // 			free (throwaway) ;
@@ -76,7 +102,7 @@ struct item *InsertItem( struct item *p, struct item* item ) {
 // 			return(aux);
 // 		}
 // 		else	{
-// 			aux->next=DeleteItem(aux->next, w);
+// 			aux->next=DeleteItem(aux->next, courseId);
 // 			return(aux);
 // 		}
 // 	}
