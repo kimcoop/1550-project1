@@ -11,22 +11,20 @@ Project 1
 #include  "MyHeader.h"
 #include "LinkedList.c"
 
-void printNode( struct node* node ) { //Print the node
+void printNode( struct node* node ) { // Print the node
   if ( node != NULL ) {
-    println(">>NODE: numChildren: %d, isLeafNode?: %d", node->numChildren, node->isLeafNode);
-    println(">>node's keys to index %d:", node->numChildren);
+    println(">> NODE: numChildren: %d, isLeafNode?: %d", node->numChildren, node->isLeafNode);
+    println(">> node's keys 0..%d:", node->numChildren);
     int i;
     for ( i = 0; i < node->numChildren; i++ ) {
-      println(">>keys[%d]=%d, \t", i, node->keys[i]);
-    }
-    if ( node->isLeafNode == YES ) { // then has courseData linkedList
-      println(">>node's children course data to index %d:", node->numChildren);
-      int i;
-      for ( i = 0; i < node->numChildren; i++ ) {
-        println("i = %d", i);
-        println(" node->courseList[i]->courseName = %s", node->courseList[i]->courseName );
-        // PrintItem( node->courseList[i] );
-      } 
+      println(">> keys[%d]=%d, \t", i, node->keys[i]);
+      if ( node->isLeafNode == YES ) { // then has linkedList  
+        int i;
+        for ( i = 0; i < node->numChildren; i++ ) {
+          println("   i = %d", i);
+          PrintItem( node->courseList[i] );
+        }   
+      }
     }
   } else {
     println(" OOOPS NODE IS NULL ***" );
@@ -138,9 +136,6 @@ struct node* insertNonfull( struct node* node, int studentId, struct item* item 
       i--;
     }
     node->keys[i] = studentId; // slot studentId in the right place
-    if ( node->courseList[i] == NULL ) {
-      println(" node->courseList[%d] was null, appending item with courseName %s ", i, item->courseName);
-    }
     node->courseList[i] = InsertItem( node->courseList[i], item );
     node->numChildren = node->numChildren + 1;
   } else {
@@ -164,11 +159,7 @@ struct node* insertMax( struct node* node, int studentId, struct item* item ) {
   int i = node->numChildren;
   node->keys[i] = studentId; // node's greatest key is studentId
   if ( node->isLeafNode == YES ) {
-    if ( node->courseList[i] == NULL ) {
-      println(" node->courseList[%d] was null, about to insert item with courseName %s ", i, item->courseName);
-    }
     node->courseList[i] = InsertItem( node->courseList[i], item );
-    println("got here");
     node->numChildren = node->numChildren + 1;
   } else {
     if ( node->children[i-1]->numChildren == 4 ) { // if slotting in studentId made 4 children
@@ -266,12 +257,8 @@ struct node* loadFile( struct node* root, char* filename ) {
       root = insertData( root, studentId, courseId, courseName, grade );
       studentId = 0;
     } // end while 
-
     fclose(fp);
   }
-
-  println(" just before return in  loadFile is "); // is strlcpy clearing the original vals?
-  printNode( root );
 
   return root;
 } // loadFile
@@ -299,9 +286,6 @@ int main( int argc, char *argv[] ) {
     int studentId, studentId_a, studentId_b;
     char courseId[7], courseName[8], grade[3];
     char filename[MAX_COMMAND_SIZE];
-
-    println(" root before prompt is ");
-    printNode( root );
 
     printf("Please enter your action: ");
     scanf("%s", cmd);
@@ -345,8 +329,6 @@ int main( int argc, char *argv[] ) {
     }
 
     strlcpy( cmd, "", sizeof( cmd ) );
-    println(" AFTER execute loop, root is: ");
-    printNode( root );
 
   } // end while
 

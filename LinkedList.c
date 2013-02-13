@@ -24,10 +24,7 @@ struct item* CreateItemWithData( char* courseId, char* courseName, char* grade )
 	strcpy( p->courseId, courseId );
   strcpy( p->courseName, courseName );
   strcpy( p->grade, grade );
-
 	p->next = NULL;
-	println(" CreateItemWithData. returning item: ");
-	PrintItem( p );
 
 	return p;
 }
@@ -57,7 +54,7 @@ struct item *InsertItem( struct item *p, struct item* item ) {
 		p->next = NULL;
 		// free( item ); // todo - do we need this?
 	} else {
-		println(" if p (existing node in linked list) isn't null, we come in here ");
+		println(" if p (node in linked list) isn't null, we come in here ");
 		p->next = InsertItem( p->next, item );
 	}
 	return p;
@@ -143,10 +140,8 @@ void PrintItem( struct item *p ) {
 	}
 	aux = p;
 	while ( aux != NULL ) {
-		println(" aux->courseId == NULL ?: %d", (aux->courseId == NULL) );
-		println(" element courseId: %s", aux->courseId );
+		println(" aux->courseId: %s, aux->courseName: %s,  aux->grade:  %s", aux->courseId, aux->courseName, aux->grade);
 		println(" aux->next == NULL ?: %d", (aux->next == NULL) );
-		// println("in PrintItem: Element courseId: %s, name: %s,  grade:  %s\n", aux->courseData->courseId, aux->courseData->courseName, aux->courseData->grade);
 		aux = aux->next;
 	}
 
