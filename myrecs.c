@@ -177,7 +177,7 @@ struct node* insertData( struct node* root, int studentId, char* courseId, char*
     root = insert( root, studentId, item );
     return root;
   } else {
-    println("--error--\nCan't pass studentId as 0. Is there a trailing newline at the end of your input file?");
+    println("--error--\nMalformed studentId. Is there a trailing newline at the end of your input file?");
     exit(0);
   }
 

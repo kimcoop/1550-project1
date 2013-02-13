@@ -13,22 +13,15 @@
 #define println(...) printf("%d:\t", __LINE__); printf( __VA_ARGS__ ); printf("\n")
 #define strEquals(a, b) !strcmp(a, b)
 
-// struct courseData {
-//   // char courseId[7], courseName[8], grade[3];
-//   char *courseId, *courseName, *grade;
-//   struct courseData *next;
-// };
 
 struct item {
-	// char *word; //courseId
 	struct item *next;
-  // char *courseId, *courseName, *grade;
   char courseId[7], courseName[8], grade[3];
 };
 
 struct node {
   int numChildren; // number of keys currently stored
-  int keys[4];// the n keys themselves
+  int keys[4]; // the n keys themselves
   int isLeafNode; // true if node is a leaf node
   struct node* children[4]; // array with four pointers to node structs
   struct item* courseList[4]; // array with four pointers to first courseData in linkedlist for each child node
