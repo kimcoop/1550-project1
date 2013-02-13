@@ -32,5 +32,5 @@ struct node* insert( struct node* root, int studentId, struct item* item );
 
 struct node* search( struct node* node, int studentId );
 
-int calculateGPA( struct node* root, int studentId );
-int gradepointForGrade( char* grade );
+float calculateGPA( struct node* root, int studentId );
+float gradepointForGrade( char* grade );

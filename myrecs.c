@@ -314,8 +314,8 @@ int main( int argc, char *argv[] ) {
     } else if ( strEqual(cmd, "gpa") ) { // gpa <studentId> or gpa<studentId_a> <studentId_b> (range) 
       scanf("%d", &studentId); // for now, assume we have one studentId input
       println("finding GPA for studentId %d", studentId);
-      int gpa = calculateGPA( root, studentId );
-      println( "GPA for student with id=%d is %d", studentId, gpa );
+      float gpa = calculateGPA( root, studentId );
+      println( "GPA for student with id=%d is %.2f", studentId, gpa );
     
     } else if ( strEqual(cmd, "top") ) {
       scanf("%d", &top);
