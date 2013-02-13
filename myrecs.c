@@ -49,6 +49,7 @@ struct node* createTree( void ) { // return a pointer to the root node
   struct node* root = (struct node*) malloc( sizeof(struct node) );
   root->isLeafNode = YES;
   root->numChildren = 0;
+
   return root;
 } // init
 
@@ -94,7 +95,6 @@ struct node* split( struct node* node, int i  ) {
     z->keys[j] = y->keys[j+median];
   }
 
-
   if ( !y->isLeafNode ) {
     for ( j=0; j < median; j++ ) {
       z->children[j] = y->children[j+median];
@@ -134,12 +134,13 @@ struct node* insertNonfull( struct node* node, int studentId, struct item* item 
     }
     node->keys[i] = studentId; // slot studentId in the right place
     if ( node->courseList[i] == NULL ) {
-      println(" node->courseList[%d] was null, now we're creating it ", i);
+      println(" node->courseList[%d] was null, appending item with courseName %s ", i, item->courseData->courseName);
     }
-    println(" insertItem into node with key %d", node->keys[i]);
-    PrintItem ( item );
+    println(" insertNonfull: insertItem into node with key %d", node->keys[i]);
     node->courseList[i] = InsertItem( node->courseList[i], item );
     node->numChildren = node->numChildren + 1;
+    println(" after attaching courseList[%d], printItem:", i );
+    PrintItem ( item );
   } else {
     while ( i > 0 && studentId < node->keys[i-1] ) { // while studentId < node's greatest key
       i--;
@@ -152,6 +153,7 @@ struct node* insertNonfull( struct node* node, int studentId, struct item* item 
     }
     node = insertNonfull( node->children[i], studentId, item ); // insert studentId into node's ith child (nonfull) // TODO - why is this i+1??
   }
+
   return node;
 } // insertNonfull
 
@@ -161,9 +163,11 @@ struct node* insertMax( struct node* node, int studentId, struct item* item ) {
   node->keys[i] = studentId; // node's greatest key is studentId
   if ( node->isLeafNode == YES ) {
     if ( node->courseList[i] == NULL ) {
-      println(" node->courseList[%d] was null, now we're creating it ", i);
+      println(" node->courseList[%d] was null, appending item with courseName %s ", i, item->courseData->courseName);
     }
-    println(" insertItem into node with key %d", node->keys[i]);
+    println("&&&&just inserted item into node->courseList[%d]: ", i);
+    printNode( node );
+    println(" insertMax: insertItem into node with key %d", node->keys[i]);
     PrintItem ( item );
     node->courseList[i] = InsertItem( node->courseList[i], item );
     node->numChildren = node->numChildren + 1;
@@ -175,15 +179,21 @@ struct node* insertMax( struct node* node, int studentId, struct item* item ) {
     printNode(node->children[i-1]);
     node = insertMax( node->children[i-1], studentId, item );
   }
+
   return node;
 } // insertMax
 
 struct node* insertData( struct node* root, int studentId, char* courseId, char* courseName, char* grade ) { // char courseId[7], courseName[8], grade[3];
 
-  struct item* item = CreateItemWithData( courseId, courseName, grade );
-  PrintItem( item );
-  root = insert( root, studentId, item );
-  return root;
+  if ( studentId > 0 ) {
+    struct item* item = CreateItemWithData( courseId, courseName, grade );
+    root = insert( root, studentId, item );
+    println(" returning root after insertData ");
+    return root;
+  } else {
+    println("--error--\nCan't pass studentId as 0. Is there a trailing newline at the end of your input file?");
+    exit(0);
+  }
 
 } // insertData
 
@@ -212,6 +222,7 @@ struct node* insert( struct node* root, int studentId, struct item* item ) {
       root = insertNonfull( root, studentId, item ); // else insert amidst the children nodes
     }
   }
+
   return root;
 }// insert
 
@@ -248,22 +259,25 @@ struct node* loadFile( struct node* root, char* filename ) {
     println("Unknown file");
     exit(1);
   } else {
-    while ( !feof(fp) ) {
-      // courseList = CreateItem( courseList );
-      int studentId;
-      // char *courseId, *courseName, *grade;
+    while ( !feof(fp)  ) { // studentId > 0 protects against trailing newline in file
+      int studentId = 0;
       char courseId[7], courseName[8], grade[3];
       fscanf( fp, "%d %s %s %s", &studentId, courseId, courseName, grade );
       fscanf( fp, "%c", &separator );
-     
-      println("");
+      println(" studentId: %d ", studentId );
       root = insertData( root, studentId, courseId, courseName, grade );
+      
+      studentId = 0;
+      strlcpy( courseId, "", sizeof( courseId ) );
+      strlcpy( courseName, "", sizeof( courseName ) );
+      strlcpy( courseName, "", sizeof( courseName ) );
+      strlcpy( grade, "", sizeof( grade ) );
     } // end while 
 
     fclose(fp);
   }
-  return root;
 
+  return root;
 } // loadFile
 
 int main( int argc, char *argv[] ) {
@@ -324,6 +338,8 @@ int main( int argc, char *argv[] ) {
 
     } else if ( strEquals(cmd, "clearbuffer") || strEquals(cmd, "clearbuf") ) {
       println("\n");
+
+    } else if ( strEquals(cmd, "debug") ) { // check all nodes to ensure properties of 2-4 tree
     }
 
     strlcpy( cmd, "", sizeof( cmd ) );
@@ -331,7 +347,6 @@ int main( int argc, char *argv[] ) {
   } // end while
 
   freeTree( root );
-  exit(0);  
  
   return 0;
  

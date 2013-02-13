@@ -27,6 +27,8 @@ struct item* CreateItemWithData( char* courseId, char* courseName, char* grade )
 
 	p->courseData = data;
 	p->next = NULL;
+	println(" CreateItemWithData. returning item: ");
+	PrintItem( p );
 
 	return p;
 }
@@ -49,12 +51,14 @@ struct item *InsertItem( struct item *p, struct item* item ) {
 
 	if ( p==NULL ) {
 		p = (struct item *) malloc( sizeof(struct item)+1 );
+		println(" p (linked list node) was null. courseId is %s", item->courseData->courseId );
 		p->courseData = item->courseData;
 		p->next = NULL;
 	} else {
+		println(" if p (existing node in linked list) isn't null, we come in here ");
 		p->next = InsertItem( p->next, item );
 	}
-	return(p);
+	return p;
 }
 
 
@@ -130,15 +134,16 @@ struct item *InsertItem( struct item *p, struct item* item ) {
 void PrintItem( struct item *p ) { 
 
 	struct item *aux=NULL;
-	
+
 	if ( p == NULL ) {
-		printf("List is empty of items\n");
+		println("List is empty of items\n");
 		return;
 	}
 	aux = p;
-	while (aux!= NULL) {
-		printf("Element courseId: %s, name: %s,  grade:  %s\n", aux->courseData->courseId, aux->courseData->courseName, aux->courseData->grade);
-		aux=aux->next;
+	while ( aux != NULL ) {
+		println(" element courseId: %s", aux->courseData->courseId );
+		// println("in PrintItem: Element courseId: %s, name: %s,  grade:  %s\n", aux->courseData->courseId, aux->courseData->courseName, aux->courseData->grade);
+		aux = aux->next;
 	}
 
 }
