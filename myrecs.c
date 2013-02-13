@@ -19,11 +19,7 @@ void printNode( struct node* node ) { // Print the node
     for ( i = 0; i < node->numChildren; i++ ) {
       println(">> keys[%d]=%d, \t", i, node->keys[i]);
       if ( node->isLeafNode == YES ) { // then has linkedList  
-        int i;
-        for ( i = 0; i < node->numChildren; i++ ) {
-          println("   i = %d", i);
-          PrintItem( node->courseList[i] );
-        }   
+        PrintItem( node->courseList[i] );
       }
     }
   } else {
@@ -217,7 +213,6 @@ struct node* insert( struct node* root, int studentId, struct item* item ) {
 }// insert
 
 void freeNode( struct node* node ) {
-  println( "freeNode" );
   if ( node != NULL && node->numChildren > 0 ) {
     int i;
     for (i = 0; i < node->numChildren; i++) {
@@ -228,8 +223,7 @@ void freeNode( struct node* node ) {
 }
 
 void freeTree( struct node* root ) {
-  println( "freeTree ");
-  printNode (root );
+  println( "freeingTree ");
   if ( !root->isLeafNode && root->numChildren > 0 ) {
     int i;
     for ( i = 0; i < root->numChildren; i++ ) {

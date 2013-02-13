@@ -140,8 +140,8 @@ void PrintItem( struct item *p ) {
 	}
 	aux = p;
 	while ( aux != NULL ) {
-		println(" aux->courseId: %s, aux->courseName: %s,  aux->grade:  %s", aux->courseId, aux->courseName, aux->grade);
-		println(" aux->next == NULL ?: %d", (aux->next == NULL) );
+		println("\t ( %s, %s, %s )", aux->courseId, aux->courseName, aux->grade);
+		// println("\taux->next == NULL ?: %d", (aux->next == NULL) );
 		aux = aux->next;
 	}
 
