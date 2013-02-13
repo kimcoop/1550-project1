@@ -10,6 +10,7 @@ Project 1
 #include <string.h>
 #include  "MyHeader.h"
 #include "LinkedList.c"
+#include "operations.c"
 
 void printNode( struct node* node ) { // Print the node
   if ( node != NULL ) {
@@ -41,7 +42,7 @@ void printTree( struct node* root ) {
 } // printTree
 
 struct node* createTree( void ) { // return a pointer to the root node
-  struct node* root = (struct node*) malloc( sizeof(struct node) );
+  struct node* root = (struct node*) malloc( sizeof(struct node)+1 );
   root->isLeafNode = YES;
   root->numChildren = 0;
   // int i;
@@ -234,11 +235,12 @@ void freeTree( struct node* root ) {
   free( root );
 } // freeTree
 
-struct node* loadFile( struct node* root, char* filename ) {
+int loadFile( struct node* root, char* filename ) {
 
   struct item *courseList = NULL;
   FILE  *fp = NULL;
   char separator;
+  int numInsertions = 0;
   if ( (fp = fopen( filename, "r" )) == NULL ) {
     println("Unknown file");
     exit(1);
@@ -249,77 +251,121 @@ struct node* loadFile( struct node* root, char* filename ) {
       fscanf( fp, "%d %s %s %s", &studentId, courseId, courseName, grade );
       fscanf( fp, "%c", &separator );
       root = insertData( root, studentId, courseId, courseName, grade );
-      studentId = 0;
+      if ( studentId != 0) numInsertions++;
+      studentId = 0; // reset
     } // end while 
     fclose(fp);
   }
 
-  return root;
+  println(" returning numInsertions %d", numInsertions );
+  return numInsertions;
 } // loadFile
 
 int main( int argc, char *argv[] ) {
   
   struct node* root = NULL;
   root = createTree(); // points to root node of tree
-  
+  int execute = YES; // while loop control
+  int numInsertions = 0;
+
   if ( argc != 2 ) {
     println("No filename provided." );
   } else {
-    root = loadFile( root, argv[1] );
-
-
-    println(" root after loadFile is ");
-    printNode( root );
-
+    int numInsertionsFromFile = loadFile( root, argv[1] );
+    numInsertions += numInsertionsFromFile;
   }
-
-  int execute = YES;
 
   while ( execute ) {
     char cmd[MAX_COMMAND_SIZE];
-    int studentId, studentId_a, studentId_b;
+    int studentId, studentId_a, studentId_b, top;
     char courseId[7], courseName[8], grade[3];
     char filename[MAX_COMMAND_SIZE];
 
     printf("Please enter your action: ");
     scanf("%s", cmd);
 
-    if ( strEquals(cmd, "exit") ) {
+    if ( strEqual(cmd, "exit") ) {
       execute = NO;
 
-    } else if ( strEquals(cmd, "printtree") ) {
+    } else if ( strEqual(cmd, "printtree") ) {
       printTree( root );
 
-    } else if ( strEquals(cmd, "printroot") || strEquals(cmd, "print") ) {
+    } else if ( strEqual(cmd, "printroot") || strEqual(cmd, "print") ) {
       printNode( root );
     
-    } else if ( strEquals(cmd, "find") ) {
+    } else if ( strEqual(cmd, "find") ) {
       scanf("%d", &studentId);
       search( root, studentId );
     
-    } else if ( strEquals(cmd, "ins") ) { // studentId, courseId, courseName, grade
+    } else if ( strEqual(cmd, "ins") ) { // studentId, courseId, courseName, grade
       scanf("%d %s %s %s", &studentId, courseId, courseName, grade);
       root = insertData( root, studentId, courseId, courseName, grade); // insert new data
+      if ( studentId > 0 ) numInsertions++;
     
-    } else if ( strEquals(cmd, "load") ) { // filename
+    } else if ( strEqual(cmd, "load") ) { // filename
       scanf("%s", filename);
-      root = loadFile( root, filename );
+      int numInsertionsFromFile = loadFile( root, filename );
+      numInsertions += numInsertionsFromFile;
     
-    } else if ( strEquals(cmd, "range") ) { // studentId_a, studentId_b
+    } else if ( strEqual(cmd, "range") ) { // studentId_a, studentId_b
       scanf("%d %d", &studentId_a, &studentId_b);
       println("range");
     
-    } else if ( strEquals(cmd, "gpa") ) { // gpa <studentId> or gpa<studentId_a> <studentId_b> (range) 
-      scanf("%d", &studentId); // for now, assume we have one GPA input
+    } else if ( strEqual(cmd, "gpa") ) { // gpa <studentId> or gpa<studentId_a> <studentId_b> (range) 
+      scanf("%d", &studentId); // for now, assume we have one studentId input
       println("finding GPA for studentId %d", studentId);
+      int gpa = calculateGPA( root, studentId );
+      println( "GPA for student with id=%d is %d", studentId, gpa );
     
-    } else if ( strEquals(cmd, "verify") ) { // check all nodes to ensure properties of 2-4 tree
+    } else if ( strEqual(cmd, "top") ) {
+      scanf("%d", &top);
+      println(" calculating top %d popular courses", top);
+      /**************************
+
+      topCoursesCollected = 0
+      topCoursesArray = array[ top ] // track courseIDs (or courseNames)
+
+      totalCoursesCollected = 0
+      totalCoursesArray = array[ numInsertions ] // track all courses inserted. array of strings
+      coursesCounterArray = array[ numInsertions ] // track num appearances for each course. array of ints
+  
+      while (totalCoursesCollected <= numInsertions) {
+        traverse the tree from root down, just like for print, until leaf node
+        if isLeafNode (node will have course data)
+          for each item in courseList of node
+            if indexOf item->courseId not in totalCoursesArray
+              strcpy( totalCoursesArray[ totalCoursesCollected-1 ], item->courseId )
+            else
+              i = indexOf item->courseId in totalCoursesArray
+              coursesCounterArray[ i ] ++ // increase frequency for course appearance
+            totalCoursesCollected ++
+      }
+
+      i = 0
+      while (topCoursesCollected <= top) {
+        topCourseIndex = getIndexOgetIndexOfMaxFrequency( coursesCounterArray  ) // get most-enrolled-in course based on frequency
+        topCourse = totalCoursesArray[ topCourseIndex ]
+        topCoursesArray[ i ] = topCourse // most-enrolled-in course will be to the left of array
+        totalCoursesArray[ topCourseIndex ] = null // set to null here
+        coursesCounterArray[ topCourseIndex ] = -1 // prevent from being re-selected. let loop repeat
+        i ++
+        topCoursesCollected ++ // will be same as i
+      }
+
+      function getIndexOfMaxFrequency() {
+        int currentMax = 0
+        int indexOfMax = -1
+        for (int i ... length) frequency in coursesCounterArray
+          if frequency > currentMax
+            currentMax = frequncy
+            indexOfMax = i
+        return i
+      }
+
+      */
+
+    } else if ( strEqual(cmd, "verify") ) { // check all nodes to ensure properties of 2-4 tree
       println("verify");
-
-    } else if ( strEquals(cmd, "clearbuffer") || strEquals(cmd, "clearbuf") ) {
-      println("\n");
-
-    } else if ( strEquals(cmd, "debug") ) { // check all nodes to ensure properties of 2-4 tree
     }
 
     strlcpy( cmd, "", sizeof( cmd ) );
