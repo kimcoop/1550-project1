@@ -32,7 +32,7 @@ float calculateGPA( struct node* root, int studentId ) {
 
 			// iterate through linkedlist items and sum grades
 			while ( p != NULL ) {
-				strcpy(grade, p->grade );
+				strcpy( grade, p->grade );
 				println(" sumGrades += p->grade (%s)", grade );
 				sumGrades += gradepointForGrade( grade );
 				gradesCount++;
