@@ -45,5 +45,5 @@ struct nodeIndex* nodeIndexForKey( struct node*, int );
 void traverseLeaves( struct node* );
 struct node* getMinNode( struct node* );
 void printKeysInNode( struct node* );
-int indexOfCourse( char*, struct courseFreq* );
+int indexOfCourseId( char*, struct courseFreq* );
 void getTopCourses( struct node*, int, int );

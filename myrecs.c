@@ -93,7 +93,6 @@ struct node* split( struct node* node, int i  ) {
   if ( y->isLeafNode ) {
     println(" y->isLeafNode now points to z");
     y->nextLeaf = z;
-  } else {
     for ( j=0; j < median; j++ ) {
       z->children[j] = y->children[j+median];
       z->courseList[j] = y->courseList[j+median];
@@ -194,7 +193,10 @@ struct nodeIndex* nodeIndexForKey( struct node* node, int studentId ) {
     i++;
   }
 
-  if ( node->keys[i] == studentId ) nodeIndex->wasFound = YES;
+  if ( node->keys[i] == studentId ) {
+    nodeIndex->wasFound = YES;
+    nodeIndex->index = i;
+  }
 
   return nodeIndex;
 }// nodeIndexForKey

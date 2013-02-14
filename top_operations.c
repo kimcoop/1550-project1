@@ -38,31 +38,70 @@ void printKeysInNode( struct node* node ) {
 
 } // printKeysInNode
 
-int indexOfCourse( char* courseId, struct courseFreq* courseFreqs ) {
+int indexOfCourseId( char* courseId, struct courseFreq* courseFreqs ) {
 
+	// int i = 0;
+	// struct courseFreq* courseFreq = (struct courseFreq*) courseFreqs[i];
+	// while ( courseFreq != NULL && ( strcmp(courseFreq->courseId, courseId) != 0) ) {
+	// 	println(" courseFreq->courseId %s != %s", courseFreq->courseId, courseId );
+	// 	i++;
+	// 	courseFreq = (struct courseFreq*) courseFreqs[i];
+	// }
+	// println(" out of while ");
+	// return ( courseFreq == NULL ? -1 : i );
 	return -1;
 
-} // indexOfCourse
+} // indexOfCourseId
 
 void getTopCourses( struct node* root, int top, int numInserts ) {
 	struct courseFreq* courseFreqs[ numInserts ]; // array with <numInserts> pointers to courseFreq structs (account for max case)
 	struct node* leafNode = getMinNode( root );
 	struct item* course;
-	char courseId[7];
-	int i, j;
+	// char courseId[7];
+	int i;
+	int numCourses = 0;
 
 	while ( leafNode != NULL ) { // for each leafNode
 
-		for ( i = 0; i < (leafNode->numChildren-i); i++ ) { // for each child in leafNode
+		for ( i = 0; i < leafNode->numChildren; i++ ) { // for each child in leafNode
 			println("key[%d]= %d", i, leafNode->keys[i]);
 			course = (struct item*) leafNode->courseList[i];
-			j = 0;
 			while ( course != NULL ) { // for each course in child
+				// int courseIndex = indexOfCourseId(course->courseId, courseFreqs);
+				println(" searching for course with courseId %s", course->courseId );
+				int k = 0;
+				if ( courseFreqs != NULL ) {
+					struct courseFreq* courseFreq = (struct courseFreq*) courseFreqs[k];
+					println(" courseFreq[0]->courseName = %s", courseFreq->courseName );
+					println(" courseFreq->courseId != NULL ? %d", courseFreq->courseId != NULL );
+					while ( courseFreq->courseId != NULL && k < numInserts && ( strcmp(courseFreq->courseId, course->courseId) != 0) ) {
+						println(" courseFreq->courseId %s != %s", courseFreq->courseId, course->courseId );
+						k++;
+						courseFreq = (struct courseFreq*) courseFreqs[k];
+					}
+					println(" out of while ");
+					int courseIndex = ( courseFreq == NULL ? -1 : k );
+
+
+					if ( courseIndex != -1 ) { // courseId was found in array
+						courseFreqs[ courseIndex ]->freq = courseFreqs[ courseIndex ]->freq + 1;
+						println("courseId %s was found in array", course->courseId);
+					} else {
+						struct courseFreq* newCourseFreq = (struct courseFreq*) malloc( sizeof(struct courseFreq)+1 );
+						strcpy( newCourseFreq->courseId, course->courseId);
+						strcpy( newCourseFreq->courseName, course->courseName);
+						newCourseFreq->freq = 1;
+						courseFreqs[ numCourses ] = newCourseFreq;
+						numCourses++;	
+						println("courseId %s was NOT FOUND in array. numCourses is %d", course->courseId, numCourses);
+					}
+				} // end if 
+
 				println( "%s", course->courseName );
-				j++;
-				course = leafNode->courseList[j];
-			}
+				course = course->next;
+			} // end while 
 		} // end for
+		println("--jumping to nextLeaf--");
 
 		leafNode = leafNode->nextLeaf;
 	} // end while
