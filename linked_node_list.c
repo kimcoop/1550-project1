@@ -57,7 +57,7 @@ void PrintItem( struct item *p ) {
 	}
 	aux = p;
 	while ( aux != NULL ) {
-		println("Course: ( %s, %s, %s )", aux->courseId, aux->courseName, aux->grade);
+		println("  Course: ( %s, %s, %s )", aux->courseId, aux->courseName, aux->grade);
 		aux = aux->next;
 	}
 

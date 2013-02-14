@@ -16,28 +16,27 @@ Project 1
 
 void printNode( struct node* node ) { // Print the node
   if ( node != NULL ) {
-    println(">> NODE: numChildren: %d, isLeafNode?: %d", node->numChildren, node->isLeafNode);
-    println(">> node's keys 0..%d:", node->numChildren);
+    println(">>NODE:: numChildren: %d, isLeafNode: %d", node->numChildren, node->isLeafNode);
     int i;
     for ( i = 0; i < node->numChildren; i++ ) {
-      println(">> keys[%d]=%d, \t", i, node->keys[i]);
+      println(">>Node->keys[%d]=%d, \t", i, node->keys[i]);
       if ( node->isLeafNode ) { // then has linkedList  
         PrintItem( node->courseList[i] );
       }
     }
     if ( node->isLeafNode && node->nextLeaf != NULL ) {
-      println(">> node's rightmost child points to new node, key[0]= %d", node->nextLeaf->keys[0]);
+      println(">>Node's rightmost child points to new node, with key[0] = %d", node->nextLeaf->keys[0]);
     }
   } else {
-    println(" OOOPS NODE IS NULL ***" );
+    println("Node is null." );
   }
 } // printNode
 
 void printTree( struct node* root ) {
-  println("printTree");
+  println("Printing tree.");
   printNode( root );
   if ( root->numChildren > 0 ) {
-    println(" children ");
+    println(" Children ");
     int i;
     for ( i = 0; i < root->numChildren; i++ ) {
       println( "i is %d", i );
@@ -79,10 +78,6 @@ struct node* split( struct node* node, int i  ) {
   int median = y->numChildren / 2; // median is half the number of y's children
   z->numChildren = y->numChildren - median; // equally divide y's children (take median number)
   z->isLeafNode = y->isLeafNode;
-  println("NODE passed into split: ");
-  printNode( node );
-  println("NODE Y (node's child at %d ):", i);
-  printNode( y );
 
   int j;
   for ( j=0; j < median; j++ ) {
@@ -90,7 +85,6 @@ struct node* split( struct node* node, int i  ) {
   }
 
   if ( y->isLeafNode ) {
-    println(" y->isLeafNode now points to z");
     y->nextLeaf = z;
     for ( j=0; j < median; j++ ) {
       z->children[j] = y->children[j+median];
@@ -108,19 +102,12 @@ struct node* split( struct node* node, int i  ) {
   node->children[i+1] = z; // plop new node into place
   node->keys[i] = y->keys[median-1];
   node->numChildren = node->numChildren+1;
-  println("ROOT:");
-  printNode(node);
-  println("Y NODE:");
-  printNode(y);
-  println("Z NODE:");
-  printNode(z);
 
   return node;
 
 } // split
 
 struct node* insertNonfull( struct node* node, int studentId, struct item* item ) {
-  println("insertNonfull");
   int i = node->numChildren;
   if ( node->isLeafNode == YES ) {
     while ( i > 0 && studentId < node->keys[i-1] ) { // while we have at least one child node and the studentId is less than current key
@@ -152,7 +139,6 @@ struct node* insertNonfull( struct node* node, int studentId, struct item* item 
 } // insertNonfull
 
 struct node* insertMax( struct node* node, int studentId, struct item* item ) {
-  println(" insertMax ");
   int i = node->numChildren;
   node->keys[i] = studentId; // node's greatest key is studentId
   if ( node->isLeafNode == YES ) {
@@ -224,7 +210,6 @@ struct node* insert( struct node* root, int studentId, struct item* item ) {
       }
     } else {
       int j = i != 0 ? i-1 : 0;
-      println( "studentId=%d, root->keys[%d]=%d ", studentId, j, root->keys[j]);
       if ( studentId > root->keys[j] ) { // if studentId > the the node's greatest child
         root = insertMax( root, studentId, item ); // then studentId is the max for this node
       } else {
@@ -248,14 +233,13 @@ void freeNode( struct node* node ) {
 }
 
 void freeTree( struct node* root ) {
-  println( "freeingTree ");
+  println( "Freeing tree.");
   if ( !root->isLeafNode && root->numChildren > 0 ) {
     int i;
     for ( i = 0; i < root->numChildren; i++ ) {
       freeNode( root->children[i] );
     }
   }
-  println(" freeing root node ");
   free( root );
 } // freeTree
 
@@ -281,7 +265,6 @@ int loadFile( struct node* root, char* filename ) {
     fclose(fp);
   }
 
-  println(" returning numInserts %d", numInserts );
   return numInserts;
 } // loadFile
 
@@ -314,7 +297,7 @@ int main( int argc, char *argv[] ) {
     } else if ( strEqual(cmd, "printtree") ) {
       printTree( root );
 
-    } else if ( strEqual(cmd, "printroot") || strEqual(cmd, "print") ) {
+    } else if ( strEqual(cmd, "print") ) {
       printNode( root );
     
     } else if ( strEqual(cmd, "find") ) {
@@ -353,7 +336,7 @@ int main( int argc, char *argv[] ) {
       getTopCourses( root, top, numInserts );
 
     } else if ( strEqual(cmd, "verify") ) { // check all nodes to ensure properties of 2-4 tree
-      println("STUB: verify");
+      println("STUB: verify.");
 
     } else if ( strEqual(cmd, "leaves") ) { // check all nodes to ensure properties of 2-4 tree
       traverseLeaves( root );
