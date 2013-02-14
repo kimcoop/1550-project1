@@ -3,8 +3,14 @@
 #define MAX_COMMAND_SIZE 200
 #define YES 1
 #define NO 0
-#define println(...) printf("%d:\t", __LINE__); printf( __VA_ARGS__ ); printf("\n")
+#define println(...) printf( __VA_ARGS__ ); printf("\n")
 #define strEqual(a, b) !strcmp(a, b)
+/*****
+* This function prints out line numbers with each print statement. Very useful for debugging.
+* To use, just overwrite the other (above) println function.
+*
+   #define println(...) printf("%d:\t", __LINE__); printf( __VA_ARGS__ ); printf("\n")
+******/
 
 struct item {
   struct item *next;
