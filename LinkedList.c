@@ -45,6 +45,7 @@ struct item* CreateItemWithData( char* courseId, char* courseName, char* grade )
 struct item *InsertItem( struct item *p, struct item* item ) {
 
 	if ( p == NULL ) {
+		println(" InsertItem: item->courseId=%s", item->courseId);
 		p = (struct item *) malloc( sizeof(struct item)+1 );
 		strcpy( p->courseId, item->courseId );
   	strcpy( p->courseName, item->courseName );

@@ -14,9 +14,10 @@ struct item {
   char courseId[7], courseName[8], grade[3];
 };
 
-struct courseMap {
-  char courseId[7];
-  int enrollments;
+struct nodeIndex {
+  struct node *node;
+  int wasFound;
+  int index;
 };
 
 struct node {
@@ -32,7 +33,9 @@ struct item* freeList( struct item *p );
 struct item *freeItem(struct item *p);
 
 struct node* insert( struct node* root, int studentId, struct item* item );
-struct node* search( struct node* node, int studentId );
+struct nodeIndex* search( struct node* node, int studentId );
 
 float calculateGPA( struct node* root, int studentId );
 float gradepointForGrade( char* grade );
+
+struct nodeIndex* nodeIndexForKey( struct node* node, int studentId );

@@ -4,40 +4,39 @@
 
 float calculateGPA( struct node* root, int studentId ) {
 
-  struct node* node = NULL;
-	node = search( root, studentId );
-
-	int sumGrades = 0, gradesCount = 0;
+  struct nodeIndex* nodeIndex = search( root, studentId );
 	float gpa = 0.0;
 
-	if ( node != NULL ) {
+	if ( nodeIndex->wasFound ) {
 
-		int i = 0;
-		while ( node->keys[i] != studentId ) {
-			i++;
-		}
-		println(" matching studentID in position %d", i );
-
-	
-		int j=0;
-		struct item *p = (struct item *) malloc( sizeof(struct item)+1 );
+		int sumGrades = 0, gradesCount = 0;
+		int i, j;
 		char grade[3];
+		j = nodeIndex->index;
 
-		if (node->courseList[j] != NULL) {
-			PrintItem( node->courseList[j] );
-			strcpy(grade, node->courseList[j]->grade );
-			sumGrades += gradepointForGrade( grade );
-			gradesCount++;
+		if ( nodeIndex->node->courseList[ j ] != NULL ) {
+			struct item *p = nodeIndex->node->courseList[ j ];
+
+			// iterate through linkedlist items and sum grades
+			while ( p != NULL ) {
+				strcpy(grade, p->grade );
+				println(" sumGrades += p->grade (%s)", grade );
+				sumGrades += gradepointForGrade( grade );
+				gradesCount++;
+				p = p->next;
+			}
+			gpa  = sumGrades / gradesCount;
+
 		} else {
-			println("oops null");
-			return 0;
+			println("Oops. Found studentId %d in tree, but has no children.", studentId);
 		}
 
-		gpa  = sumGrades / gradesCount;
+	} else {
+		println("Oops. StudentId %d was not found in tree.", studentId);
 	}
 
 	return gpa;
-}
+} // calculateGPA
 
 
 float gradepointForGrade( char* grade ) {
