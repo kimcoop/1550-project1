@@ -10,7 +10,7 @@ Project 1
 #include <string.h>
 #include  "MyHeader.h"
 #include "LinkedList.c"
-#include "operations.c"
+#include "gpa_operations.c"
 
 void printNode( struct node* node ) { // Print the node
   if ( node != NULL ) {
@@ -60,7 +60,8 @@ struct nodeIndex* search( struct node* node, int studentId ) {
 
   } else if ( node->isLeafNode == YES ) { // if we hit a leaf node, we've run out
     println("%d NOT FOUND  ", studentId);
-    return NULL;
+    nodeIndex->wasFound = NO;
+    return nodeIndex;
 
   } else {
     return search( node->children[i], studentId ); // return
@@ -172,7 +173,7 @@ struct node* insertData( struct node* root, int studentId, char* courseId, char*
     root = insert( root, studentId, item );
     return root;
   } else {
-    println("--error--\nMalformed studentId. Is there a trailing newline at the end of your input file?");
+    println("ERROR:\nMalformed studentId. Trailing newline at the end of input file?");
     exit(0);
   }
 
@@ -330,9 +331,7 @@ int main( int argc, char *argv[] ) {
     
     } else if ( strEqual(cmd, "gpa") ) { // gpa <studentId> or gpa<studentId_a> <studentId_b> (range) 
       scanf("%d", &studentId); // for now, assume we have one studentId input
-      println("finding GPA for studentId %d", studentId);
-      float gpa = calculateGPA( root, studentId );
-      println( "GPA for student with id=%d is %.2f", studentId, gpa );
+      getGPA( root, studentId );
     
     } else if ( strEqual(cmd, "top") ) {
       scanf("%d", &top);
@@ -383,6 +382,8 @@ int main( int argc, char *argv[] ) {
 
     } else if ( strEqual(cmd, "verify") ) { // check all nodes to ensure properties of 2-4 tree
       println("verify");
+    } else {
+      println("ERROR\nCommand '%s' not recognized.", cmd);
     }
 
     strlcpy( cmd, "", sizeof( cmd ) );
