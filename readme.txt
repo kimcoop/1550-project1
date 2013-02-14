@@ -20,6 +20,7 @@ You should see a prompt asking for a command. Valid commands include:
 	gpa <studId>
 	gpa_range <studentId_a> <studentId_b>
 	top <numCourses>
+	range <studentId_a> <studentId_b>
 	exit
 	print (this will print the leftmost child)
 	printtree (will print the tree)

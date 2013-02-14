@@ -12,6 +12,7 @@ Project 1
 #include "linked_node_list.c"
 #include "gpa_operations.c"
 #include "top_operations.c"
+#include "info_operations.c"
 
 void printNode( struct node* node ) { // Print the node
   if ( node != NULL ) {
@@ -58,11 +59,9 @@ struct nodeIndex* search( struct node* node, int studentId ) {
   int i = nodeIndex->index;
 
   if ( nodeIndex->wasFound ) { // studentId exactly matches node's child at i
-    println("%d FOUND", studentId);
     return nodeIndex;
 
   } else if ( node->isLeafNode == YES ) { // if we hit a leaf node, we've run out
-    println("%d NOT FOUND  ", studentId);
     nodeIndex->wasFound = NO;
     return nodeIndex;
 
@@ -320,7 +319,12 @@ int main( int argc, char *argv[] ) {
     
     } else if ( strEqual(cmd, "find") ) {
       scanf("%d", &studentId);
-      search( root, studentId );
+      struct nodeIndex* nodeIndex = search( root, studentId );
+      if ( nodeIndex->wasFound ) {
+        println("StudentId %d was found in tree.", studentId);
+      } else {
+        println("StudentId %d was not found in tree.", studentId);
+      }
     
     } else if ( strEqual(cmd, "ins") ) { // studentId, courseId, courseName, grade
       scanf("%d %s %s %s", &studentId, courseId, courseName, grade);
@@ -334,7 +338,7 @@ int main( int argc, char *argv[] ) {
     
     } else if ( strEqual(cmd, "range") ) { // studentId_a, studentId_b
       scanf("%d %d", &studentId_a, &studentId_b);
-      println("STUB: range");
+      getInfoInRange( root,  studentId_a, studentId_b );
     
     } else if ( strEqual(cmd, "gpa") ) { // gpa <studentId>
       scanf("%d", &studentId);

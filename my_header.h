@@ -37,6 +37,9 @@ void PrintItem( struct item* );
 struct node* insert( struct node*, int, struct item* );
 struct nodeIndex* search( struct node*, int );
 
+void printCoursesInList( struct item* );
+void getInfoInRange( struct node*,int, int );
+
 float calculateGPA( struct node*, int );
 void getGPAinRange( struct node*, int, int );
 float gradepointForGrade( char* );
