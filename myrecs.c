@@ -334,30 +334,28 @@ int main( int argc, char *argv[] ) {
     
     } else if ( strEqual(cmd, "range") ) { // studentId_a, studentId_b
       scanf("%d %d", &studentId_a, &studentId_b);
-      println("range");
+      println("STUB: range");
     
-    } else if ( strEqual(cmd, "gpa") ) { // gpa <studentId> or gpa<studentId_a> <studentId_b> (range) 
-      scanf("%d", &studentId); // for now, assume we have one studentId input
+    } else if ( strEqual(cmd, "gpa") ) { // gpa <studentId>
+      scanf("%d", &studentId);
       getGPA( root, studentId );
     
+    } else if ( strEqual(cmd, "gpa_range") ) { // gpa_range <studentId_a> <studentId_b>
+      scanf("%d %d", &studentId_a, &studentId_b);
+      getGPAinRange( root, studentId_a, studentId_b );
+
     } else if ( strEqual(cmd, "top") ) {
       scanf("%d", &top);
-      println(" calculating top %d popular courses", top);
       getTopCourses( root, top, numInserts );
 
     } else if ( strEqual(cmd, "verify") ) { // check all nodes to ensure properties of 2-4 tree
-      println("verify");
+      println("STUB: verify");
 
     } else if ( strEqual(cmd, "leaves") ) { // check all nodes to ensure properties of 2-4 tree
-      println("leaves");
-
       traverseLeaves( root );
-
     } else {
       println("ERROR\nCommand '%s' not recognized.", cmd);
     }
-
-    strlcpy( cmd, "", sizeof( cmd ) );
 
   } // end while
 

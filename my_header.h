@@ -38,7 +38,9 @@ struct node* insert( struct node*, int, struct item* );
 struct nodeIndex* search( struct node*, int );
 
 float calculateGPA( struct node*, int );
+void getGPAinRange( struct node*, int, int );
 float gradepointForGrade( char* );
+float calculateGPAofList( struct item* );
 
 struct nodeIndex* nodeIndexForKey( struct node*, int );
 

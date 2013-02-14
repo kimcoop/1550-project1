@@ -6,12 +6,44 @@ void getGPA( struct node* root, int studentId ) {
 
 	float gpa = calculateGPA( root, studentId );
 	if ( gpa > 0 ) {
-		println("GPA for studentId=%.2f: ", gpa);
+		println("GPA for studentId %d = %.2f. ", studentId, gpa);
 	} else {
 		println("ERROR:\nCould not calculate GPA for studentId %d.", studentId);
 	}
 
 } // getGPA
+
+void getGPAinRange( struct node* root, int studentId_a, int studentId_b ) {
+  
+  struct nodeIndex* nodeIndexA = (struct nodeIndex*) nodeIndexForKey( root, studentId_a );
+  struct nodeIndex* nodeIndexB = (struct nodeIndex*) nodeIndexForKey( root, studentId_b );
+
+  int numStudentsInRange = 0;
+  float sumAveragesGPA = 0.0;
+  float averageGPA = 0.0;
+  if ( studentId_a < studentId_b && nodeIndexA->wasFound && nodeIndexB->wasFound ) { // ensure both valid
+  	int i = nodeIndexA->index; // position within node
+  	struct node* node = (struct node*) nodeIndexA->node;
+		struct item* courseList = (struct item*) nodeIndexA->node->courseList[i];
+
+		while ( node != NULL && node->keys[i] <= studentId_b ) {
+			sumAveragesGPA += calculateGPAofList( node->courseList[i] );
+			numStudentsInRange++;
+			i++;
+			if ( i == 4 || i == node->numChildren ) { // reset when we jump to right leafnode
+				i = 0;
+				node = node->nextLeaf;
+			}
+		}
+
+  	averageGPA = sumAveragesGPA / numStudentsInRange;
+  	println("Average GPA for studentIds in range(%d..%d) = %.2f.", studentId_a, studentId_b, averageGPA);
+
+  } else {
+  	println("ERROR:\nBad studentId input for GPA (%d, %d).", studentId_a, studentId_b);
+  }
+
+} // getGPAinRange
 
 float calculateGPA( struct node* root, int studentId ) {
 
@@ -20,36 +52,37 @@ float calculateGPA( struct node* root, int studentId ) {
 
 	if ( nodeIndex->wasFound ) {
 
-		println(" nodeIndex->wasFound %d", nodeIndex->wasFound );
-
-		int sumGrades = 0, gradesCount = 0;
-		int i, j;
-		char grade[3];
-		j = nodeIndex->index;
+		int j = nodeIndex->index;
 
 		if ( nodeIndex->node->courseList[ j ] != NULL ) {
-			struct item *p = nodeIndex->node->courseList[ j ];
-
-			// iterate through linkedlist items and sum grades
-			while ( p != NULL ) {
-				strcpy( grade, p->grade );
-				println(" sumGrades += p->grade (%s)", grade );
-				sumGrades += gradepointForGrade( grade );
-				gradesCount++;
-				p = p->next;
-			}
-			gpa  = sumGrades / gradesCount;
-
+			gpa = calculateGPAofList( nodeIndex->node->courseList[j] );
 		} else {
-			println("Oops. Found studentId %d in tree, but has no children.", studentId);
+			println("ERROR:\nFound studentId %d in tree, but has no children.", studentId);
 		}
 
 	} else {
-		println("Oops. StudentId %d was not found in tree.", studentId);
+		println("ERROR:\nStudentId %d was not found in tree.", studentId);
 	}
 
 	return gpa;
 } // calculateGPA
+
+float calculateGPAofList( struct item* p ) {
+	// iterate through linkedlist items and sum grades
+
+	int sumGrades = 0, gradesCount = 0;
+	char grade[3];
+
+	while ( p != NULL ) {
+		strcpy( grade, p->grade );
+		sumGrades += gradepointForGrade( grade );
+		gradesCount++;
+		p = p->next;
+	}
+	float gpa = sumGrades / gradesCount;
+	return gpa;
+
+} // calculateGPAofList
 
 
 float gradepointForGrade( char* grade ) {
